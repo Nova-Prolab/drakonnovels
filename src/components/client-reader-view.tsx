@@ -4,7 +4,7 @@ import type { Novel, Chapter } from '@/lib/types';
 import { useTheme } from './theme-provider';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { ArrowLeft, ArrowRight, Home, Settings, List } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, List, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
@@ -16,6 +16,12 @@ import { ChapterTranslator } from './chapter-translator';
 import { useLoading } from './loading-provider';
 import { ChapterAudioPlayer } from './chapter-audio-player';
 import { Skeleton } from './ui/skeleton';
+import { Lora, Merriweather, Lato } from 'next/font/google';
+
+const lora = Lora({ subsets: ['latin'], variable: '--font-lora' });
+const merriweather = Merriweather({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-merriweather'});
+const lato = Lato({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-lato'});
+
 
 type ReaderViewProps = {
   novel: Novel;
@@ -46,14 +52,14 @@ const HighlightedParagraph = memo(function HighlightedParagraph({
     <p className={cn("transition-colors duration-300 rounded-md", "bg-accent")}>
       {wordsAndSpaces.map((wordOrSpace, index) => {
         const wordStart = charCount;
-        charCount += wordOrSpace.length;
-        const wordEnd = charCount;
-
+        const currentWordLength = wordOrSpace.length;
+        charCount += currentWordLength;
+        
         if (wordOrSpace.trim() === '') {
           return <span key={index}>{wordOrSpace}</span>;
         }
 
-        const isSpoken = spokenCharIndex >= wordStart && spokenCharIndex < wordEnd;
+        const isSpoken = spokenCharIndex >= wordStart && spokenCharIndex < (wordStart + currentWordLength);
 
         return (
           <span
@@ -148,7 +154,7 @@ export function ClientReaderView({ novel, chapter, prevChapter, nextChapter }: R
   }
 
   return (
-    <div className={cn("bg-background text-foreground h-screen flex flex-col", fontClass)}>
+    <div className={cn("bg-background text-foreground h-screen flex flex-col", fontClass, lora.variable, merriweather.variable, lato.variable)}>
       <header className="border-b bg-background/80 backdrop-blur-sm flex-shrink-0 z-10">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
