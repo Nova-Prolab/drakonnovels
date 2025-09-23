@@ -1,123 +1,129 @@
 
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from './ui/button';
-import { Volume2, Loader2, Play, Pause, AlertCircle } from 'lucide-react';
-import { getChapterAudio } from '@/app/actions';
+import { Volume2, Play, Pause, Square } from 'lucide-react';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Alert, AlertDescription } from './ui/alert';
-import { useToast } from '@/hooks/use-toast';
 
 type ChapterAudioPlayerProps = {
   chapterText: string;
 };
 
+type SpeechState = "idle" | "playing" | "paused";
+
 export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [audioDataUri, setAudioDataUri] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const { toast } = useToast();
+  const [speechState, setSpeechState] = useState<SpeechState>("idle");
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  const handleGenerateAudio = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await getChapterAudio(chapterText);
-      if (result.audioDataUri) {
-        setAudioDataUri(result.audioDataUri);
-      } else {
-        setError(result.error || 'Ocurrió un error desconocido.');
-        toast({
-            variant: "destructive",
-            title: "Error de Audio",
-            description: result.error || 'No se pudo generar el audio.',
-        })
+  const cleanUpSpeech = useCallback(() => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
       }
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      setError(errorMessage);
-       toast({
-            variant: "destructive",
-            title: "Error de Audio",
-            description: 'No se pudo generar el audio.',
-        })
-    } finally {
-      setIsLoading(false);
-    }
+      setSpeechState("idle");
+  }, []);
+
+  useEffect(() => {
+    // Cleanup on component unmount
+    return () => {
+      cleanUpSpeech();
+    };
+  }, [cleanUpSpeech]);
+
+  const handlePlay = () => {
+    // Create a new utterance
+    const utterance = new SpeechSynthesisUtterance(chapterText);
+    utterance.lang = "es-ES"; 
+
+    utterance.onstart = () => {
+      setSpeechState("playing");
+    };
+    utterance.onpause = () => {
+      setSpeechState("paused");
+    };
+    utterance.onresume = () => {
+      setSpeechState("playing");
+    };
+    utterance.onend = () => {
+      setSpeechState("idle");
+    };
+    utterance.onerror = (event) => {
+        console.error("SpeechSynthesis Error", event);
+        setSpeechState("idle");
+    };
+    
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+  
+  const handlePause = () => {
+    window.speechSynthesis.pause();
+  };
+  
+  const handleResume = () => {
+    window.speechSynthesis.resume();
   };
 
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
+  const handleStop = () => {
+    window.speechSynthesis.cancel();
+    setSpeechState("idle");
   };
+
+  const getPlayButton = () => {
+    switch(speechState) {
+        case 'idle':
+            return (
+                <Button onClick={handlePlay} size="lg" className="w-full">
+                    <Play className="mr-2" />
+                    Reproducir Audio
+                </Button>
+            );
+        case 'playing':
+            return (
+                <Button onClick={handlePause} size="lg" className="w-full" variant="outline">
+                    <Pause className="mr-2" />
+                    Pausar
+                </Button>
+            );
+        case 'paused':
+            return (
+                <Button onClick={handleResume} size="lg" className="w-full">
+                    <Play className="mr-2" />
+                    Reanudar
+                </Button>
+            );
+    }
+  }
+
 
   return (
     <div>
-      <Popover onOpenChange={(open) => !open && setIsPlaying(false)}>
+      <Popover onOpenChange={(open) => !open && cleanUpSpeech()}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" aria-label="Escuchar capítulo">
-            {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Volume2 className="h-5 w-5" />
-            )}
+            <Volume2 className="h-5 w-5" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="end">
+        <PopoverContent align="end" className="w-60">
           <div className="flex flex-col gap-4 items-center">
             <h4 className="font-medium leading-none">Reproductor de Audio</h4>
 
-            {error && (
-               <Alert variant="destructive">
-                 <AlertCircle className="h-4 w-4" />
-                 <AlertDescription>
-                    {error}
-                 </AlertDescription>
-               </Alert>
-            )}
-
-            {!audioDataUri && !error && (
-              <Button onClick={handleGenerateAudio} disabled={isLoading} className="w-full">
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Volume2 className="mr-2 h-4 w-4" />
-                )}
-                Generar Audio
-              </Button>
-            )}
-
-            {audioDataUri && (
-              <div className="flex items-center gap-2">
-                <Button onClick={togglePlayPause} size="icon" variant="outline">
-                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            <div className="w-full space-y-2">
+              {getPlayButton()}
+              {speechState !== 'idle' && (
+                <Button onClick={handleStop} size="lg" className="w-full" variant="destructive">
+                    <Square className="mr-2" />
+                    Detener
                 </Button>
-                <audio
-                  ref={audioRef}
-                  src={audioDataUri}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onEnded={() => setIsPlaying(false)}
-                  className="w-full"
-                />
-              </div>
-            )}
+              )}
+            </div>
             
             <p className="text-xs text-muted-foreground text-center">
-              La generación de audio puede tardar unos segundos.
+              Utiliza la función de texto a voz de tu navegador.
             </p>
           </div>
         </PopoverContent>
@@ -125,3 +131,4 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     </div>
   );
 }
+
