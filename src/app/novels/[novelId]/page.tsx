@@ -7,6 +7,7 @@ import { ChapterList } from './_components/chapter-list';
 import { getNovelDetails } from '@/lib/github-service';
 import { Header } from '@/components/header';
 import { ExpandableDescription } from './_components/expandable-description';
+import Link from 'next/link';
 
 type NovelDetailsPageProps = {
   params: {
@@ -58,9 +59,16 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
             </div>
           </div>
           <div className="md:col-span-2">
-            <p className="text-sm font-medium text-primary">{novel.category}</p>
+            <Link href={`/?q=${encodeURIComponent(novel.category)}`} className="text-sm font-medium text-primary hover:underline">
+              {novel.category}
+            </Link>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-1">{novel.title}</h1>
-            <p className="mt-2 text-lg text-muted-foreground">by {novel.author}</p>
+            <p className="mt-2 text-lg text-muted-foreground">
+              by{' '}
+              <Link href={`/?q=${encodeURIComponent(novel.author)}`} className="text-primary hover:underline">
+                {novel.author}
+              </Link>
+            </p>
             
             <ExpandableDescription description={novel.description} className="mt-4" />
 
@@ -68,7 +76,9 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
                 <h3 className="text-lg font-semibold">Tags</h3>
                 <div className="flex flex-wrap gap-2 mt-2">
                     {novel.tags.map(tag => (
-                        <Badge key={tag} variant="secondary">{tag}</Badge>
+                        <Link href={`/?q=${encodeURIComponent(tag)}`} key={tag}>
+                          <Badge variant="secondary">{tag}</Badge>
+                        </Link>
                     ))}
                 </div>
             </div>

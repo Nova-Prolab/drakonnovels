@@ -1,21 +1,31 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Novel } from '@/lib/types';
 import { NovelCard } from './novel-card';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLibrary } from '@/lib/hooks';
 import { Search } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 type NovelListProps = {
   novels: Novel[];
+  initialSearchTerm?: string;
 };
 
-export function NovelList({ novels }: NovelListProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [activeTab, setActiveTab] = useState('all');
   const { library, isReady } = useLibrary();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const query = searchParams.get('q');
+    if (typeof query === 'string') {
+      setSearchTerm(query);
+    }
+  }, [searchParams]);
 
   const filteredNovels = useMemo(() => {
     let novelsToFilter = novels;
@@ -32,7 +42,8 @@ export function NovelList({ novels }: NovelListProps) {
     return novelsToFilter.filter(novel => 
       novel.title.toLowerCase().includes(lowercasedTerm) ||
       novel.author.toLowerCase().includes(lowercasedTerm) ||
-      novel.tags.some(tag => tag.toLowerCase().includes(lowercasedTerm))
+      novel.tags.some(tag => tag.toLowerCase().includes(lowercasedTerm)) ||
+      novel.category.toLowerCase().includes(lowercasedTerm)
     );
   }, [novels, searchTerm, activeTab, library]);
 
@@ -67,9 +78,12 @@ export function NovelList({ novels }: NovelListProps) {
             <Search className="w-16 h-16 text-muted-foreground mb-4"/>
             <h3 className="text-xl font-semibold">No Novels Found</h3>
             <p className="text-muted-foreground mt-2">
-                {activeTab === 'library'
+                {activeTab === 'library' && searchTerm
+                    ? "No novels in your library match the search."
+                    : activeTab === 'library'
                     ? "You haven't added any novels to your library yet."
-                    : "Try adjusting your search or filter."}
+                    : "Try adjusting your search or filter."
+                }
             </p>
          </div>
       )}
