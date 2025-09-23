@@ -70,7 +70,7 @@ export async function getNovelDetails(novelId: string): Promise<Novel | null> {
     const info = await getNovelInfo(novelId);
     if (!info) return null;
 
-    const chapters = await getChapters(novelId, info);
+    const chapters = await getChapters(novelId);
 
     return {
         id: novelId,
@@ -101,16 +101,19 @@ export async function getNovelInfo(novelId: string): Promise<NovelInfo | null> {
 }
 
 
-export async function getChapters(novelId: string, info: NovelInfo): Promise<Chapter[]> {
-    if (info.capitulos && info.capitulos.length > 0) {
+export async function getChapters(novelId: string): Promise<Chapter[]> {
+    const info = await getNovelInfo(novelId);
+
+    // If info.json has a chapter list, use it for structure. Titles will be fetched later.
+    if (info?.capitulos && info.capitulos.length > 0) {
         return info.capitulos.map(c => ({
             id: c.id,
-            title: c.titulo,
+            title: c.titulo, // Use title from info.json if available
             content: '', // Fetched on demand
         }));
     }
 
-    // Fallback to old method if info.json doesn't have chapters
+    // Fallback to scanning directory if info.json doesn't have chapters
     const files = await fetchFromGithub<GithubContent[]>(novelId);
     if (!files) return [];
 
@@ -122,33 +125,46 @@ export async function getChapters(novelId: string, info: NovelInfo): Promise<Cha
             return numA - numB;
         });
     
-    return chapterFiles.map(file => {
-        const chapterId = parseInt(file.name.match(/(\d+)/)?.[0] || '0', 10);
-        return {
-            id: chapterId,
-            title: `Chapter ${chapterId}`,
-            content: '' // Fetched on demand
-        };
-    });
+    // Fetch all chapter titles in parallel to be more efficient
+    const chapters = await Promise.all(
+        chapterFiles.map(async (file) => {
+            const chapterId = parseInt(file.name.match(/(\d+)/)?.[0] || '0', 10);
+            const content = await fetchRawContent(file.path);
+            let title = `Chapter ${chapterId}`;
+            if (content) {
+                const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
+                if (titleMatch && titleMatch[1]) {
+                    title = titleMatch[1];
+                }
+            }
+            return {
+                id: chapterId,
+                title: title,
+                content: '' // Fetched on demand
+            };
+        })
+    );
+    
+    return chapters;
 }
 
 
 export async function getChapterContent(novelId: string, chapterId: number): Promise<Chapter | null> {
-    const info = await getNovelInfo(novelId);
     const content = await fetchRawContent(`${novelId}/chapter-${chapterId}.html`);
     if (!content) return null;
 
     let title = `Chapter ${chapterId}`;
-    if (info?.capitulos) {
-        const chapterInfo = info.capitulos.find(c => c.id === chapterId);
-        if (chapterInfo) {
-            title = chapterInfo.titulo;
-        }
+    const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
+    if (titleMatch && titleMatch[1]) {
+        title = titleMatch[1];
     } else {
-         // Fallback to extracting from H1 if not in info.json
-        const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
-        if (titleMatch) {
-            title = titleMatch[1];
+        // Fallback to info.json if h1 is missing
+        const info = await getNovelInfo(novelId);
+        if (info?.capitulos) {
+            const chapterInfo = info.capitulos.find(c => c.id === chapterId);
+            if (chapterInfo) {
+                title = chapterInfo.titulo;
+            }
         }
     }
     
