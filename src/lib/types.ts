@@ -17,6 +17,7 @@ export type Novel = {
   status?: string;
   translator?: string;
   ageRating?: string;
+  releaseDate?: string;
 };
 
 export type ReadingProgress = {
@@ -66,4 +67,5 @@ export type Comment = {
   likes: number;
   replies: Comment[];
 };
+
 

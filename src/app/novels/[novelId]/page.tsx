@@ -8,6 +8,8 @@ import { getNovelDetails } from '@/lib/github-service';
 import { Header } from '@/components/header';
 import { ExpandableDescription } from './_components/expandable-description';
 import Link from 'next/link';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 
 type NovelDetailsPageProps = {
   params: {
@@ -69,6 +71,15 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
                 {novel.author}
               </Link>
             </p>
+            
+            {novel.releaseDate && (
+                <div className="mt-2 flex items-center text-sm text-muted-foreground">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <span>
+                        Last updated on {format(new Date(novel.releaseDate), 'MMMM d, yyyy')}
+                    </span>
+                </div>
+            )}
             
             <ExpandableDescription description={novel.description} className="mt-4" />
 

@@ -56,6 +56,7 @@ export async function getNovelList(): Promise<Novel[]> {
         tags: info.etiquetas,
         status: info.status,
         ageRating: info.ageRating,
+        releaseDate: info.fecha_lanzamiento,
         chapters: [], // Fetched on demand
       };
     });
@@ -82,6 +83,7 @@ export async function getNovelDetails(novelId: string): Promise<Novel | null> {
         status: info.status,
         ageRating: info.ageRating,
         translator: info.traductor,
+        releaseDate: info.fecha_lanzamiento,
         chapters: chapters
     };
 }
