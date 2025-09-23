@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -6,7 +7,7 @@ import type { Novel } from '@/lib/types';
 import { useLibrary, useReadingProgress } from '@/lib/hooks';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { Bookmark } from 'lucide-react';
+import { Bookmark, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Badge } from './ui/badge';
@@ -38,6 +39,7 @@ export function NovelCard({ novel, isCarouselItem = false }: NovelCardProps) {
 
   const isSaved = library.includes(novel.id);
   const novelProgress = progress[novel.id];
+  const startChapter = novel.chapters[0]?.id ?? 1;
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -93,13 +95,12 @@ export function NovelCard({ novel, isCarouselItem = false }: NovelCardProps) {
           <p className="text-xs text-muted-foreground truncate" title={novel.author}>
             {novel.author}
           </p>
-          {novelProgress && (
-            <Button asChild size="sm" className="w-full mt-2">
-              <Link href={`/novels/${novel.id}/${novelProgress.chapterId}`} onClick={startLoading}>
-                Continue Reading
-              </Link>
-            </Button>
-          )}
+          <Button asChild size="sm" className="w-full mt-2">
+            <Link href={`/novels/${novel.id}/${novelProgress?.chapterId ?? startChapter}`} onClick={startLoading}>
+              <BookOpen className="mr-2 h-4 w-4" />
+              {novelProgress ? 'Continue Reading' : 'Start Reading'}
+            </Link>
+          </Button>
         </div>
         <Tooltip>
           <TooltipTrigger asChild>

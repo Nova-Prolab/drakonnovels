@@ -23,10 +23,8 @@ export type Novel = {
 export type ReadingProgress = {
   [novelId: string]: {
     chapterId: number;
-    /** Scroll position in pixels */
-    scrollPosition: number; 
-    /** Total scroll height of the chapter content */
-    scrollHeight: number;
+    /** Is the chapter fully read */
+    isRead: boolean;
   };
 };
 

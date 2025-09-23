@@ -26,15 +26,19 @@ type ReaderViewProps = {
 
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
   const { fontSize, font, isThemeReady, lineHeight, columnWidth, textAlign } = useTheme();
-  const { progress, updateProgress, markChapterAsRead, markChapterAsUnread, getChapterProgress } = useReadingProgress();
+  const { updateCurrentChapter, markChapterAsRead, markChapterAsUnread, getChapterProgress } = useReadingProgress();
   const { startLoading } = useLoading();
   
-  const contentRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
 
   const { isRead: isCurrentChapterRead } = getChapterProgress(novel.id, chapter.id);
+
+  // Update that we are on this chapter
+  useEffect(() => {
+    updateCurrentChapter(novel.id, chapter.id);
+  }, [novel.id, chapter.id, updateCurrentChapter]);
 
   // Reset content and scroll to top when chapter changes
   useEffect(() => {
@@ -44,38 +48,6 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
     }
   }, [chapter.id, chapter.content]);
 
-  // Restore scroll position on initial load
-  useEffect(() => {
-    const novelProgress = progress[novel.id];
-    if (mainRef.current && novelProgress && novelProgress.chapterId === chapter.id) {
-        // Use a short timeout to ensure content is fully rendered
-        setTimeout(() => {
-            if (mainRef.current) {
-               mainRef.current.scrollTop = novelProgress.scrollPosition;
-            }
-        }, 100);
-    }
-  }, [chapter.id, progress, novel.id, isThemeReady]);
-
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (mainRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
-        // The scrollable height is the total height minus the visible height
-        const actualScrollableHeight = scrollHeight - clientHeight;
-        updateProgress(novel.id, chapter.id, scrollTop, actualScrollableHeight);
-      }
-    };
-    
-    const mainElement = mainRef.current;
-    mainElement?.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      mainElement?.removeEventListener('scroll', handleScroll);
-    };
-  }, [novel.id, chapter.id, updateProgress]);
-
   const handleContentChange = (newContent: string) => {
     setDisplayedContent(newContent);
     if(mainRef.current) {
@@ -84,21 +56,11 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
   }
 
   const handleMarkAsRead = () => {
-      if (mainRef.current) {
-          const { scrollHeight, clientHeight } = mainRef.current;
-          markChapterAsRead(novel.id, chapter.id, scrollHeight - clientHeight);
-          // Scroll to the bottom
-          mainRef.current.scrollTop = scrollHeight - clientHeight;
-      }
+      markChapterAsRead(novel.id, chapter.id);
   };
 
   const handleMarkAsUnread = () => {
-      if (mainRef.current) {
-          const { scrollHeight, clientHeight } = mainRef.current;
-          markChapterAsUnread(novel.id, chapter.id, scrollHeight - clientHeight);
-          // Scroll to the top
-          mainRef.current.scrollTop = 0;
-      }
+      markChapterAsUnread(novel.id, chapter.id);
   };
 
   const fontClass = 
@@ -164,7 +126,6 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
 
       <main ref={mainRef} className="flex-1 overflow-y-auto">
           <div 
-            ref={contentRef}
             className={cn("container mx-auto px-4 py-8 md:py-12 transition-all duration-300", columnWidth)}>
             <div 
               className={cn("prose prose-lg dark:prose-invert max-w-none", textAlign === "justify" && "text-justify")}

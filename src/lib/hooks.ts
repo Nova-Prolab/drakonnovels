@@ -72,50 +72,48 @@ export function useLibrary() {
 export function useReadingProgress() {
   const [progress, setProgress, isReady] = useLocalStorage<ReadingProgress>('story_weaver_progress', {});
 
-  const throttledUpdate = useMemo(() => throttle((novelId: string, chapterId: number, scrollPosition: number, scrollHeight: number) => {
+  const updateCurrentChapter = useCallback((novelId: string, chapterId: number) => {
     setProgress(prevProgress => ({
       ...prevProgress,
-      [novelId]: { chapterId, scrollPosition, scrollHeight },
-    }));
-  }, 1000), [setProgress]);
-
-  const updateProgress = useCallback((novelId: string, chapterId: number, scrollPosition: number, scrollHeight: number) => {
-    throttledUpdate(novelId, chapterId, scrollPosition, scrollHeight);
-  }, [throttledUpdate]);
-
-  const markChapterAsRead = useCallback((novelId: string, chapterId: number, scrollHeight: number) => {
-    setProgress(prev => ({
-      ...prev,
-      [novelId]: { chapterId, scrollPosition: scrollHeight, scrollHeight: scrollHeight }
+      [novelId]: { 
+        chapterId, 
+        // Preserve isRead status if we're just updating the chapter
+        isRead: prevProgress[novelId]?.chapterId === chapterId ? prevProgress[novelId].isRead : false 
+      },
     }));
   }, [setProgress]);
 
-  const markChapterAsUnread = useCallback((novelId: string, chapterId: number, scrollHeight: number) => {
+
+  const markChapterAsRead = useCallback((novelId: string, chapterId: number) => {
     setProgress(prev => ({
       ...prev,
-      [novelId]: { chapterId, scrollPosition: 0, scrollHeight: scrollHeight }
+      [novelId]: { chapterId, isRead: true }
+    }));
+  }, [setProgress]);
+
+  const markChapterAsUnread = useCallback((novelId: string, chapterId: number) => {
+    setProgress(prev => ({
+      ...prev,
+      [novelId]: { chapterId, isRead: false }
     }));
   }, [setProgress]);
 
   const getChapterProgress = useCallback((novelId: string, chapterId: number) => {
       const novelProgress = progress[novelId];
-      if (!novelProgress) return { percentage: 0, isRead: false };
+      if (!novelProgress) return { isRead: false };
       
       // If the user is on a chapter further than saved, this chapter is read
       if (novelProgress.chapterId > chapterId) {
-        return { percentage: 100, isRead: true };
+        return { isRead: true };
       }
       // If this is the chapter the user is on
       if (novelProgress.chapterId === chapterId) {
-          const { scrollPosition, scrollHeight } = novelProgress;
-          if (scrollHeight <= 0) return { percentage: 0, isRead: false };
-          const percentage = Math.round((scrollPosition / scrollHeight) * 100);
-          return { percentage, isRead: percentage >= 99 };
+          return { isRead: novelProgress.isRead };
       }
       // If the user is on a chapter before this one
-      return { percentage: 0, isRead: false };
+      return { isRead: false };
   }, [progress]);
 
 
-  return { progress, updateProgress, markChapterAsRead, markChapterAsUnread, getChapterProgress, isReady };
+  return { progress, updateCurrentChapter, markChapterAsRead, markChapterAsUnread, getChapterProgress, isReady };
 }
