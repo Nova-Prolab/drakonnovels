@@ -6,7 +6,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center h-full py-2">
+        <Link href="/" className="flex items-center h-full">
           <Image src="https://i.imgur.com/18GTnzt.png" alt="DrakonInk Logo" width={300} height={80} className="h-full w-auto" />
         </Link>
         <SettingsControls />
