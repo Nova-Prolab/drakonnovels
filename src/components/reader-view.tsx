@@ -127,7 +127,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                   <p 
                     key={index} 
                     className={cn(
-                      "transition-colors duration-300 rounded-md p-1 -m-1",
+                      "transition-colors duration-300 rounded-md",
                       index === currentlyPlayingParagraph && "bg-accent"
                     )}
                   >
