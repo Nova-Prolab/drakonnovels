@@ -8,11 +8,12 @@ import { useToast } from '@/hooks/use-toast';
 
 type ChapterAudioPlayerProps = {
   chapterText: string;
+  onParagraphChange: (index: number) => void;
 };
 
 type SpeechState = "idle" | "playing" | "paused";
 
-export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
+export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAudioPlayerProps) {
   const [speechState, setSpeechState] = useState<SpeechState>("idle");
   const paragraphsRef = useRef<string[]>([]);
   const currentParagraphIndexRef = useRef<number>(0);
@@ -42,14 +43,16 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     return () => {
       cleanUpSpeech();
       setSpeechState("idle");
+      onParagraphChange(-1);
       currentParagraphIndexRef.current = 0;
     };
-  }, [chapterText, cleanUpSpeech]);
+  }, [chapterText, cleanUpSpeech, onParagraphChange]);
 
   const speakParagraph = (index: number) => {
     if (index >= paragraphsRef.current.length || typeof window === "undefined" || !window.speechSynthesis) {
       cleanUpSpeech();
       setSpeechState("idle");
+      onParagraphChange(-1);
       currentParagraphIndexRef.current = 0;
       return;
     }
@@ -59,7 +62,10 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     utterance.lang = "es-ES";
     utteranceRef.current = utterance;
 
-    utterance.onstart = () => setSpeechState("playing");
+    utterance.onstart = () => {
+        setSpeechState("playing");
+        onParagraphChange(index);
+    }
     utterance.onpause = () => setSpeechState("paused");
     utterance.onresume = () => setSpeechState("playing");
     utterance.onend = () => {
@@ -68,6 +74,7 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
         speakParagraph(currentParagraphIndexRef.current);
       } else {
         setSpeechState("idle");
+        onParagraphChange(-1);
         currentParagraphIndexRef.current = 0;
       }
     };
@@ -80,6 +87,7 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
       });
       cleanUpSpeech();
       setSpeechState("idle");
+      onParagraphChange(-1);
       currentParagraphIndexRef.current = 0;
     };
     
@@ -116,6 +124,7 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
   const handleStop = () => {
     cleanUpSpeech();
     setSpeechState("idle");
+    onParagraphChange(-1);
     currentParagraphIndexRef.current = 0;
   };
 

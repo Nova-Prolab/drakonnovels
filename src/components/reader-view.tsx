@@ -32,6 +32,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
   const mainRef = useRef<HTMLElement>(null);
   
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
+  const [currentlyPlayingParagraph, setCurrentlyPlayingParagraph] = useState(-1);
 
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
 
   useEffect(() => {
     setDisplayedContent(chapter.content);
+    setCurrentlyPlayingParagraph(-1); // Reset highlight on chapter change
     if(mainRef.current) {
       mainRef.current.scrollTop = 0;
     }
@@ -81,7 +83,10 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <ChapterAudioPlayer chapterText={chapter.content} />
+            <ChapterAudioPlayer 
+              chapterText={chapter.content} 
+              onParagraphChange={setCurrentlyPlayingParagraph}
+            />
 
             <ChapterTranslator 
                 chapterText={chapter.content} 
@@ -117,7 +122,15 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                 <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />
               </div>
               {displayedContent.split('\\n').map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
+                  <p 
+                    key={index} 
+                    className={cn(
+                      "transition-colors duration-300 rounded-md p-1 -m-1",
+                      index === currentlyPlayingParagraph && "bg-accent"
+                    )}
+                  >
+                    {paragraph}
+                  </p>
               ))}
             </div>
 
