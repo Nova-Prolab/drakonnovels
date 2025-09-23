@@ -37,7 +37,7 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAu
   }, []);
   
   useEffect(() => {
-    paragraphsRef.current = chapterText.split('\\n').filter(p => p.trim() !== '');
+    paragraphsRef.current = chapterText.split('\n').filter(p => p.trim() !== '');
     
     // Clean up when the component unmounts or the chapter changes
     return () => {

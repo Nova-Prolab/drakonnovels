@@ -152,7 +152,7 @@ export async function getChapterContent(novelId: string, chapterId: number): Pro
         title = titleMatch[1].trim();
     }
     
-    const plainContent = content.replace(/<[^>]+>/g, '\\n').replace(/\\n\\n+/g, '\\n\\n').trim();
+    const plainContent = content.replace(/<[^>]+>/g, '\n').replace(/\n\n+/g, '\n\n').trim();
 
     return {
         id: chapterId,

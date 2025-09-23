@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
 import { useReadingProgress } from '@/lib/hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
 import { ChapterTranslator } from './chapter-translator';
@@ -34,7 +34,6 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
   const [currentlyPlayingParagraph, setCurrentlyPlayingParagraph] = useState(-1);
 
-
   useEffect(() => {
     updateCurrentChapter(novel.id, chapter.id);
   }, [novel.id, chapter.id, updateCurrentChapter]);
@@ -53,6 +52,9 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
         mainRef.current.scrollTop = 0;
     }
   }
+  
+  const paragraphs = useMemo(() => displayedContent.split('\n').filter(p => p.trim() !== ''), [displayedContent]);
+
 
   const fontClass = 
     font === 'serif' ? 'font-serif' : 
@@ -121,7 +123,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
               <div className="my-8">
                 <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />
               </div>
-              {displayedContent.split('\\n').map((paragraph, index) => (
+              {paragraphs.map((paragraph, index) => (
                   <p 
                     key={index} 
                     className={cn(
