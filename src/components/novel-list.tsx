@@ -6,9 +6,10 @@ import { NovelCard } from './novel-card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLibrary } from '@/lib/hooks';
-import { Search } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { Search, X } from 'lucide-react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Fuse from 'fuse.js';
+import { Button } from './ui/button';
 
 type NovelListProps = {
   novels: Novel[];
@@ -25,7 +26,10 @@ export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [activeTab, setActiveTab] = useState('all');
   const { library, isReady } = useLibrary();
+  
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const fuse = useMemo(() => new Fuse(novels, fuseOptions), [novels]);
 
@@ -33,8 +37,33 @@ export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
     const query = searchParams.get('q');
     if (typeof query === 'string') {
       setSearchTerm(query);
+    } else {
+        // Clear search term if 'q' param is removed from URL
+        setSearchTerm('');
     }
   }, [searchParams]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    
+    const params = new URLSearchParams(searchParams);
+    if (newSearchTerm) {
+      params.set('q', newSearchTerm);
+    } else {
+      params.delete('q');
+    }
+    // Using router.replace to avoid adding search history for each keystroke
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    const params = new URLSearchParams(searchParams);
+    params.delete('q');
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
 
   const filteredNovels = useMemo(() => {
     let novelsToFilter = novels;
@@ -54,6 +83,8 @@ export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
 
   }, [novels, searchTerm, activeTab, library]);
 
+  const isSearching = searchTerm.length > 0;
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
@@ -63,16 +94,31 @@ export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
             placeholder="Search by title, author, or tag..." 
             className="pl-10"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
           />
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="all">All Novels</TabsTrigger>
+            <TabsTrigger value="explore">Explore</TabsTrigger>
             <TabsTrigger value="library" disabled={!isReady}>My Library</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
+      
+      {isSearching && (
+        <div className="flex items-center justify-between border-b pb-4">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight">Search Results</h2>
+            <p className="text-muted-foreground">Showing results for &quot;{searchTerm}&quot;</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={clearSearch}>
+            <X className="mr-2 h-4 w-4" />
+            Clear
+          </Button>
+        </div>
+      )}
+
 
       {filteredNovels.length > 0 ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
@@ -85,8 +131,8 @@ export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
             <Search className="w-16 h-16 text-muted-foreground mb-4"/>
             <h3 className="text-xl font-semibold">No Novels Found</h3>
             <p className="text-muted-foreground mt-2">
-                {activeTab === 'library' && searchTerm
-                    ? "No novels in your library match the search."
+                {isSearching
+                    ? `No results found for "${searchTerm}".`
                     : activeTab === 'library'
                     ? "You haven't added any novels to your library yet."
                     : "Try adjusting your search or filter."
