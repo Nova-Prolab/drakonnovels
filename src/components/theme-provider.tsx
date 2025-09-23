@@ -4,13 +4,10 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useLocalStorage } from '@/lib/hooks';
 
 type Theme = 'light' | 'dark';
-type Font = 'sans' | 'serif';
 
 type ThemeContextType = {
   theme: Theme;
   setTheme: (theme: Theme) => void;
-  font: Font;
-  setFont: (font: Font | ((prevFont: Font) => Font)) => void;
   fontSize: number;
   setFontSize: React.Dispatch<React.SetStateAction<number>>;
 };
@@ -18,8 +15,7 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useLocalStorage<Theme>('theme', 'light');
-  const [font, setFont] = useLocalStorage<Font>('font', 'sans');
+  const [theme, setThemeState] = useLocalStorage<Theme>('theme', 'dark');
   const [fontSize, setFontSize] = useLocalStorage<number>('font-size', 1.0);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -39,15 +35,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       const body = window.document.body;
       body.classList.remove('font-sans', 'font-serif');
-      body.classList.add(font === 'serif' ? 'font-serif' : 'font-sans');
+      body.classList.add('font-serif');
     }
-  }, [theme, font, isMounted]);
+  }, [theme, isMounted]);
 
   const value = {
     theme: theme,
     setTheme,
-    font: font,
-    setFont: setFont as (font: Font | ((prevFont: Font) => Font)) => void,
     fontSize: fontSize,
     setFontSize: setFontSize as React.Dispatch<React.SetStateAction<number>>,
   };

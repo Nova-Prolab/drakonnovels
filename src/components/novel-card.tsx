@@ -22,7 +22,6 @@ export function NovelCard({ novel }: NovelCardProps) {
 
   const isSaved = library.includes(novel.id);
   const novelProgress = progress[novel.id];
-  const startChapter = novel.chapters[0]?.id ?? 1;
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -38,7 +37,7 @@ export function NovelCard({ novel }: NovelCardProps) {
     <TooltipProvider delayDuration={300}>
       <div className="relative group">
         <Card className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
-          <Link href={`/novels/${novel.id}/${novelProgress?.chapterId ?? startChapter}`}>
+          <Link href={`/novels/${novel.id}`}>
               <CardContent className="p-0">
                 <div className="aspect-[2/3] relative">
                   {coverImage ? (

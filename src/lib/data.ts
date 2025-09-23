@@ -7,6 +7,8 @@ export const novels: Novel[] = [
     id: 'the-crimson-cipher',
     title: 'The Crimson Cipher',
     author: 'Elara Vance',
+    description: 'In a city powered by magical glyphs, a young scribe uncovers a conspiracy that threatens to unravel the very fabric of her reality. She must decode an ancient cipher before the city descends into chaos.',
+    category: 'Fantasy',
     coverImageId: 'novel-cover-1',
     tags: ['Fantasy', 'Mystery', 'Adventure'],
     chapters: [
@@ -19,6 +21,8 @@ export const novels: Novel[] = [
     id: 'echoes-of-nebula',
     title: 'Echoes of Nebula',
     author: 'Kaelen Rourke',
+    description: 'The last remnants of humanity journey through the stars in search of a new home. When they encounter a derelict alien ship, they find that they are not alone in the universe, and their journey takes an unexpected turn.',
+    category: 'Science Fiction',
     coverImageId: 'novel-cover-2',
     tags: ['Sci-Fi', 'Space Opera', 'Exploration'],
     chapters: [
@@ -32,6 +36,8 @@ export const novels: Novel[] = [
     id: 'the-last-librarian',
     title: 'The Last Librarian',
     author: 'Fiona Gable',
+    description: 'In a future where all knowledge is digital and controlled, a lone librarian protects a hidden, physical library. She becomes a target when a group of rebels seeks her help to reclaim their history.',
+    category: 'Dystopian',
     coverImageId: 'novel-cover-3',
     tags: ['Dystopian', 'Post-Apocalyptic', 'Mystery'],
     chapters: [
@@ -43,6 +49,8 @@ export const novels: Novel[] = [
     id: 'the-kings-gambit',
     title: 'The King\'s Gambit',
     author: 'Arthur Pendelton',
+    description: 'In a realm torn by war, a cunning king must navigate a web of political intrigue, betrayal, and shifting alliances to protect his kingdom. His greatest challenge, however, may come from within his own court.',
+    category: 'Historical Fiction',
     coverImageId: 'novel-cover-4',
     tags: ['Historical', 'Intrigue', 'War'],
     chapters: [

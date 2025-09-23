@@ -4,7 +4,6 @@ import { useTheme } from "./theme-provider";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { Minus, Plus } from "lucide-react";
-import { Separator } from "./ui/separator";
 import { SettingsControls } from "./settings-controls";
 
 const FONT_SIZE_STEP = 0.1;
@@ -28,8 +27,6 @@ export function ReaderSettings() {
         <Label>Appearance</Label>
         <SettingsControls />
       </div>
-
-      <Separator />
 
       <div className="space-y-2">
         <Label htmlFor="font-size">Font Size</Label>

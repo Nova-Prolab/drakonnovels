@@ -8,6 +8,8 @@ export type Novel = {
   id: string;
   title: string;
   author: string;
+  description: string;
+  category: string;
   coverImageId: string;
   tags: string[];
   chapters: Chapter[];
