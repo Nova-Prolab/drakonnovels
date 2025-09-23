@@ -9,7 +9,7 @@ import { Header } from '@/components/header';
 import { ExpandableDescription } from './_components/expandable-description';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 
 type NovelDetailsPageProps = {
   params: {
@@ -55,7 +55,15 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
               </div>
-              <div className="mt-6 flex flex-col gap-3">
+               {novel.releaseDate && (
+                <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    <span>
+                        Updated on {format(new Date(novel.releaseDate), 'MMM d, yyyy')}
+                    </span>
+                </div>
+              )}
+              <div className="mt-4 flex flex-col gap-3">
                  <ReadingProgressButton novelId={novel.id} chapters={novel.chapters} />
               </div>
             </div>
@@ -72,16 +80,7 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
               </Link>
             </p>
             
-            {novel.releaseDate && (
-                <div className="mt-2 flex items-center text-sm text-muted-foreground">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    <span>
-                        Last updated on {format(new Date(novel.releaseDate), 'MMMM d, yyyy')}
-                    </span>
-                </div>
-            )}
-            
-            <ExpandableDescription description={novel.description} className="mt-4" />
+            <ExpandableDescription description={novel.description} className="mt-6" />
 
             <div className="mt-6">
                 <h3 className="text-lg font-semibold">Tags</h3>
