@@ -6,7 +6,7 @@ const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Nova-Prolab/novels/mai
 async function fetchFromGithub<T>(path: string): Promise<T | null> {
   try {
     const response = await fetch(`${GITHUB_API_URL}${path}`, {
-        next: { revalidate: 30 } // Revalidate every 30 seconds
+        next: { revalidate: 300 } // Revalidate every 5 minutes
     });
     if (!response.ok) {
       // console.error(`Failed to fetch ${path}: ${response.statusText}`);
@@ -22,7 +22,7 @@ async function fetchFromGithub<T>(path: string): Promise<T | null> {
 async function fetchRawContent(path: string): Promise<string | null> {
     try {
         const response = await fetch(`${GITHUB_RAW_URL}${path}`, {
-            next: { revalidate: 30 } // Revalidate every 30 seconds
+            next: { revalidate: 300 } // Revalidate every 5 minutes
         });
         if (!response.ok) {
             // console.error(`Failed to fetch raw content ${path}: ${response.statusText}`);
