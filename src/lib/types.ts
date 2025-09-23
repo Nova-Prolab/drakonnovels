@@ -44,6 +44,11 @@ export interface GithubContent {
   };
 }
 
+export type NovelInfoChapter = {
+  id: number;
+  titulo: string;
+}
+
 export type NovelInfo = {
   titulo: string;
   descripcion: string;
@@ -56,4 +61,5 @@ export type NovelInfo = {
   traductor: string;
   status: string;
   rating_platform: number;
+  capitulos?: NovelInfoChapter[];
 };

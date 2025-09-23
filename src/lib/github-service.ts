@@ -70,7 +70,7 @@ export async function getNovelDetails(novelId: string): Promise<Novel | null> {
     const info = await getNovelInfo(novelId);
     if (!info) return null;
 
-    const chapters = await getChapters(novelId);
+    const chapters = await getChapters(novelId, info);
 
     return {
         id: novelId,
@@ -101,7 +101,16 @@ export async function getNovelInfo(novelId: string): Promise<NovelInfo | null> {
 }
 
 
-export async function getChapters(novelId: string): Promise<Chapter[]> {
+export async function getChapters(novelId: string, info: NovelInfo): Promise<Chapter[]> {
+    if (info.capitulos && info.capitulos.length > 0) {
+        return info.capitulos.map(c => ({
+            id: c.id,
+            title: c.titulo,
+            content: '', // Fetched on demand
+        }));
+    }
+
+    // Fallback to old method if info.json doesn't have chapters
     const files = await fetchFromGithub<GithubContent[]>(novelId);
     if (!files) return [];
 
@@ -117,7 +126,7 @@ export async function getChapters(novelId: string): Promise<Chapter[]> {
         const chapterId = parseInt(file.name.match(/(\d+)/)?.[0] || '0', 10);
         return {
             id: chapterId,
-            title: `Chapter ${chapterId}`, // We'll fetch title from content later
+            title: `Chapter ${chapterId}`,
             content: '' // Fetched on demand
         };
     });
@@ -125,12 +134,23 @@ export async function getChapters(novelId: string): Promise<Chapter[]> {
 
 
 export async function getChapterContent(novelId: string, chapterId: number): Promise<Chapter | null> {
+    const info = await getNovelInfo(novelId);
     const content = await fetchRawContent(`${novelId}/chapter-${chapterId}.html`);
     if (!content) return null;
 
-    // Basic parsing to extract title from <h1> if it exists
-    const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
-    const title = titleMatch ? titleMatch[1] : `Chapter ${chapterId}`;
+    let title = `Chapter ${chapterId}`;
+    if (info?.capitulos) {
+        const chapterInfo = info.capitulos.find(c => c.id === chapterId);
+        if (chapterInfo) {
+            title = chapterInfo.titulo;
+        }
+    } else {
+         // Fallback to extracting from H1 if not in info.json
+        const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
+        if (titleMatch) {
+            title = titleMatch[1];
+        }
+    }
     
     // Naive approach to strip HTML for plain text display
     const plainContent = content.replace(/<[^>]+>/g, '\n').replace(/\n\n+/g, '\n\n').trim();
