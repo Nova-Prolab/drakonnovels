@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Inter } from 'next/font/google';
 import { LoadingProvider } from '@/components/loading-provider';
 import { LoadingOverlay } from '@/components/loading-overlay';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -21,11 +22,13 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={cn("font-sans antialiased", inter.variable)}>
-        <LoadingProvider>
-          <LoadingOverlay />
-          {children}
-          <Toaster />
-        </LoadingProvider>
+        <ThemeProvider>
+          <LoadingProvider>
+            <LoadingOverlay />
+            {children}
+            <Toaster />
+          </LoadingProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

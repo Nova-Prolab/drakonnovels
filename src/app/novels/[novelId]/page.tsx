@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { es } from 'date-fns/locale';
-import { ThemeProvider } from '@/components/theme-provider';
 
 type NovelDetailsPageProps = {
   params: {
@@ -42,7 +41,6 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
   }
 
   return (
-    <ThemeProvider>
       <div className="flex min-h-screen flex-col bg-background">
         <Header />
         <main className="container mx-auto flex-1 px-4 py-8 md:py-12">
@@ -104,6 +102,5 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
           </div>
         </main>
       </div>
-    </ThemeProvider>
   );
 }

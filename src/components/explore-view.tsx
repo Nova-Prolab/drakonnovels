@@ -16,6 +16,8 @@ import { Card, CardContent } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { FeaturedCarousel } from './featured-carousel';
 import { RecentlyUpdatedCarousel } from './recently-updated-carousel';
+import { useTheme } from './theme-provider';
+import { Skeleton } from './ui/skeleton';
 
 type ExploreViewProps = {
   novels: Novel[];
@@ -36,6 +38,7 @@ const getUniqueValues = (novels: Novel[], key: keyof Novel) => {
 const NOVELS_PER_PAGE = 20;
 
 export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps) {
+  const { isThemeReady } = useTheme();
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [activeTab, setActiveTab] = useState(initialSearchTerm ? 'all' : 'all');
   const { library, isReady } = useLibrary();
@@ -163,6 +166,34 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
 
   const isSearching = searchTerm.length > 0;
   const showCarousels = activeTab === 'all' && !isSearching && !categoryFilter && !statusFilter && !ageRatingFilter && selectedTags.length === 0;
+
+  if (!isThemeReady) {
+    return (
+        <div className="space-y-8 md:space-y-12">
+            <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+                <Skeleton className="h-10 w-full md:max-w-sm" />
+                <div className="flex gap-1 p-1 bg-muted rounded-md">
+                    <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-8 w-24" />
+                </div>
+            </div>
+            <Skeleton className="w-full aspect-video" />
+            <div className="space-y-4">
+                <Skeleton className="h-8 w-64" />
+                <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="space-y-2">
+                           <Skeleton className="aspect-[2/3] w-full" />
+                           <Skeleton className="h-4 w-3/4" />
+                           <Skeleton className="h-3 w-1/2" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+  }
 
   return (
     <div className="space-y-8 md:space-y-12">

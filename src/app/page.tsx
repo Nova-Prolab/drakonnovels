@@ -1,9 +1,7 @@
-import { NovelList } from '@/components/novel-list';
 import { Header } from '@/components/header';
 import { getNovelList } from '@/lib/github-service';
 import { ExploreView } from '@/components/explore-view';
 import { AnimatedParticles } from '@/components/animated-particles';
-import { ThemeProvider } from '@/components/theme-provider';
 
 export default async function Page({
   searchParams,
@@ -14,7 +12,6 @@ export default async function Page({
   const initialSearchTerm = typeof searchParams?.q === 'string' ? searchParams.q : undefined;
 
   return (
-    <ThemeProvider>
       <div className="flex min-h-screen flex-col bg-background relative overflow-hidden">
         <AnimatedParticles />
         <Header />
@@ -22,6 +19,5 @@ export default async function Page({
           <ExploreView novels={novels} initialSearchTerm={initialSearchTerm} />
         </main>
       </div>
-    </ThemeProvider>
   );
 }
