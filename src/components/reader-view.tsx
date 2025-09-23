@@ -2,6 +2,7 @@ import type { Novel, Chapter } from '@/lib/types';
 import { ClientReaderView } from './client-reader-view';
 import { ThemeProvider } from './theme-provider';
 import { Lora, Merriweather, Lato } from 'next/font/google';
+import { cn } from '@/lib/utils';
 
 type ReaderViewProps = {
   novel: Novel;
