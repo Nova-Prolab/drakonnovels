@@ -48,11 +48,11 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
-            <Link href="/" legacyBehavior passHref>
-              <Button variant="ghost" size="icon" aria-label="Back to library">
+            <Button asChild variant="ghost" size="icon" aria-label="Back to library">
+              <Link href="/">
                 <Home className="h-5 w-5" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             <div className="flex items-center gap-3 overflow-hidden">
               {coverImageUrl && (
                 <div className="relative h-10 w-8 flex-shrink-0">
