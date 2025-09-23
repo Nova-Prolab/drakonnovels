@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
-import { novels } from '@/lib/data';
 import { Header } from '@/components/header';
 import { ChapterList } from '../_components/chapter-list';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import type { Metadata } from 'next';
+import { getNovelDetails } from '@/lib/github-service';
 
 type ChaptersPageProps = {
     params: {
@@ -14,7 +14,7 @@ type ChaptersPageProps = {
 };
 
 export async function generateMetadata({ params }: ChaptersPageProps): Promise<Metadata> {
-    const novel = novels.find(n => n.id === params.novelId);
+    const novel = await getNovelDetails(params.novelId);
   
     if (!novel) {
       return {
@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: ChaptersPageProps): Promise<M
 }
   
 
-export default function ChaptersPage({ params }: ChaptersPageProps) {
-    const novel = novels.find(n => n.id === params.novelId);
+export default async function ChaptersPage({ params }: ChaptersPageProps) {
+    const novel = await getNovelDetails(params.novelId);
 
     if (!novel) {
         notFound();

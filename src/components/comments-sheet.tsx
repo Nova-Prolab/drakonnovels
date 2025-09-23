@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -11,68 +11,99 @@ import {
   SheetFooter
 } from "@/components/ui/sheet";
 import { Button } from "./ui/button";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, ThumbsUp, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';
+import { getChapterComments } from '@/lib/github-service';
+import type { Comment } from '@/lib/types';
+import { formatDistanceToNow } from 'date-fns';
 
-const fakeComments = [
-    {
-        id: 1,
-        author: "Alex",
-        avatar: "/avatars/01.png",
-        content: "Wow, this chapter was intense! I didn't see that coming.",
-        timestamp: "2 hours ago"
-    },
-    {
-        id: 2,
-        author: "Maria",
-        avatar: "/avatars/02.png",
-        content: "I have a theory about the Crimson Cipher. What if it's not a code, but a map?",
-        timestamp: "1 hour ago"
-    },
-    {
-        id: 3,
-        author: "David",
-        avatar: "/avatars/03.png",
-        content: "The world-building is incredible. Elara Vance is a genius.",
-        timestamp: "30 minutes ago"
-    },
-    {
-        id: 4,
-        author: "Sophia",
-        avatar: "/avatars/04.png",
-        content: "I'm so invested in the main character's journey. Can't wait to see what happens next!",
-        timestamp: "10 minutes ago"
-    }
-]
+type CommentsSheetProps = {
+    novelId: string;
+    chapterId: number;
+}
 
-export function CommentsSheet() {
-    const [comments, setComments] = useState(fakeComments);
+const formatLikes = (likes: number) => {
+    if (likes >= 1000000) return `${(likes / 1000000).toFixed(1)}M`;
+    if (likes >= 1000) return `${(likes / 1000).toFixed(1)}K`;
+    return likes;
+}
+
+const CommentEntry = ({ comment }: { comment: Comment }) => (
+    <div className="flex items-start gap-4">
+        <Avatar className="h-9 w-9 border">
+            <AvatarImage src={comment.avatarUrl} alt={comment.name} />
+            <AvatarFallback>{comment.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+            <div className="flex items-center gap-2">
+                <p className="font-semibold text-sm">{comment.name}</p>
+                <span className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}
+                </span>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{comment.content}</p>
+            <div className="flex items-center gap-4 mt-2">
+                <Button variant="ghost" size="sm" className="flex items-center gap-1 px-1 h-auto text-xs">
+                    <ThumbsUp className="h-3 w-3" />
+                    <span>{formatLikes(comment.likes)}</span>
+                </Button>
+                <Button variant="ghost" size="sm" className="px-1 h-auto text-xs">Reply</Button>
+            </div>
+            {comment.replies && comment.replies.length > 0 && (
+                <div className="mt-4 pl-4 border-l-2 space-y-4">
+                    {comment.replies.map(reply => <CommentEntry key={reply.id} comment={reply} />)}
+                </div>
+            )}
+        </div>
+    </div>
+);
+
+
+export function CommentsSheet({ novelId, chapterId }: CommentsSheetProps) {
+    const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setIsLoading(true);
+            getChapterComments(novelId, chapterId)
+                .then(fetchedComments => {
+                    setComments(fetchedComments);
+                })
+                .catch(err => console.error("Failed to fetch comments", err))
+                .finally(() => setIsLoading(false));
+        }
+    }, [isOpen, novelId, chapterId]);
+
 
     const handlePostComment = () => {
         if (newComment.trim()) {
-            const newCommentObj = {
-                id: comments.length + 1,
-                author: "You",
-                avatar: "/avatars/05.png",
+            const newCommentObj: Comment = {
+                id: `${Date.now()}`,
+                name: "You",
+                avatarUrl: "https://i.imgur.com/JwGSnCv.jpeg",
                 content: newComment,
-                timestamp: "Just now"
+                timestamp: Date.now(),
+                likes: 0,
+                replies: []
             };
-            setComments([...comments, newCommentObj]);
+            setComments(prev => [newCommentObj, ...prev]);
             setNewComment("");
         }
     }
 
     return (
-        <Sheet>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="View comments">
                     <MessageSquare className="h-5 w-5" />
                 </Button>
             </SheetTrigger>
-            <SheetContent className="flex flex-col">
+            <SheetContent className="flex flex-col p-0">
                 <SheetHeader className="p-6">
                     <SheetTitle>Chapter Comments</SheetTitle>
                     <SheetDescription>
@@ -80,23 +111,19 @@ export function CommentsSheet() {
                     </SheetDescription>
                 </SheetHeader>
                 <ScrollArea className="flex-1 px-6">
-                    <div className="space-y-6">
-                        {comments.map(comment => (
-                            <div key={comment.id} className="flex items-start gap-4">
-                                <Avatar className="h-9 w-9 border">
-                                    <AvatarImage src={comment.avatar} alt={comment.author} />
-                                    <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-semibold text-sm">{comment.author}</p>
-                                        <span className="text-xs text-muted-foreground">{comment.timestamp}</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground mt-1">{comment.content}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                     {isLoading ? (
+                        <div className="flex justify-center items-center h-full">
+                            <Loader2 className="h-8 w-8 animate-spin" />
+                        </div>
+                    ) : comments.length > 0 ? (
+                        <div className="space-y-6">
+                            {comments.map(comment => <CommentEntry key={comment.id} comment={comment} />)}
+                        </div>
+                    ) : (
+                        <div className="text-center text-muted-foreground py-12">
+                            <p>No comments yet. Be the first to share your thoughts!</p>
+                        </div>
+                    )}
                 </ScrollArea>
                 <SheetFooter>
                     <div className="w-full space-y-2">

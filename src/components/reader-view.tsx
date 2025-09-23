@@ -4,7 +4,7 @@ import type { Novel, Chapter } from '@/lib/types';
 import { useTheme } from './theme-provider';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { ArrowLeft, ArrowRight, Home, Settings, List, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, Settings, List } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
@@ -18,12 +18,11 @@ import { CommentsSheet } from './comments-sheet';
 type ReaderViewProps = {
   novel: Novel;
   chapter: Chapter;
-  coverImageUrl?: string;
   prevChapter: Chapter | null;
   nextChapter: Chapter | null;
 };
 
-export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextChapter }: ReaderViewProps) {
+export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
   const { fontSize, font, isThemeReady } = useTheme();
   const { updateProgress } = useReadingProgress();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -59,30 +58,32 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
     }
   }
 
+  const fontClass = font === 'serif' ? 'font-serif' : 'font-sans';
+
   return (
-    <div className={cn("bg-background text-foreground", isThemeReady && (font === 'serif' ? 'font-serif' : 'font-sans'))}>
+    <div className={cn("bg-background text-foreground", isThemeReady ? fontClass : 'font-sans')}>
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
-            <Button asChild variant="ghost" size="icon" aria-label="Back to home">
+             <Button asChild variant="ghost" size="icon" aria-label="Back to home">
               <Link href="/">
                 <Home className="h-5 w-5" />
               </Link>
             </Button>
             <div className="flex items-center gap-3 overflow-hidden">
-              {coverImageUrl && (
+              {novel.coverImageUrl && (
                 <Link href={`/novels/${novel.id}`} className="relative h-10 w-8 flex-shrink-0">
-                  <Image src={coverImageUrl} alt={`${novel.title} cover`} fill className="object-cover rounded-sm" />
+                  <Image src={novel.coverImageUrl} alt={`${novel.title} cover`} fill className="object-cover rounded-sm" />
                 </Link>
               )}
               <div className="flex flex-col overflow-hidden">
                  <Link href={`/novels/${novel.id}`} className="text-sm font-semibold truncate" title={novel.title}>{novel.title}</Link>
-                <h2 className="text-xs text-muted-foreground truncate" title={chapter.title}>Chapter {chapter.id}: {chapter.title}</h2>
+                <h2 className="text-xs text-muted-foreground truncate" title={chapter.title}>{chapter.title}</h2>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <CommentsSheet />
+            <CommentsSheet novelId={novel.id} chapterId={chapter.id} />
             <ChapterTranslator 
                 chapterText={chapter.content} 
                 onContentChange={handleContentChange} 
@@ -106,7 +107,7 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
         <main ref={contentRef} className="flex-1 overflow-y-auto">
           <div className="container mx-auto max-w-3xl px-4 py-8 md:py-12">
             <div className="prose prose-lg dark:prose-invert" style={{ fontSize: `${fontSize}rem` }}>
-              <h1>Chapter {chapter.id}: {chapter.title}</h1>
+              <h1>{chapter.title}</h1>
               <div className="my-8">
                 <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />
               </div>

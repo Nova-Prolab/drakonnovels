@@ -1,3 +1,4 @@
+
 export type Chapter = {
   id: number;
   title: string;
@@ -10,9 +11,12 @@ export type Novel = {
   author: string;
   description: string;
   category: string;
-  coverImageId: string;
+  coverImageUrl: string;
   tags: string[];
   chapters: Chapter[];
+  status?: string;
+  translator?: string;
+  ageRating?: string;
 };
 
 export type ReadingProgress = {
@@ -20,4 +24,45 @@ export type ReadingProgress = {
     chapterId: number;
     scrollPosition: number;
   };
+};
+
+export interface GithubContent {
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  url: string;
+  html_url: string;
+  git_url: string;
+  download_url: string | null;
+  type: "file" | "dir";
+  _links: {
+    self: string;
+    git: string;
+    html: string;
+  };
+}
+
+export type NovelInfo = {
+  titulo: string;
+  descripcion: string;
+  coverImageUrl: string;
+  ageRating: string;
+  fecha_lanzamiento: string;
+  etiquetas: string[];
+  categoria: string;
+  autor: string;
+  traductor: string;
+  status: string;
+  rating_platform: number;
+};
+
+export type Comment = {
+  id: string;
+  name: string;
+  content: string;
+  timestamp: number;
+  avatarUrl: string;
+  likes: number;
+  replies: Comment[];
 };

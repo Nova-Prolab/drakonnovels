@@ -1,8 +1,10 @@
-import { novels } from '@/lib/data';
 import { NovelList } from '@/components/novel-list';
 import { Header } from '@/components/header';
+import { getNovelList } from '@/lib/github-service';
 
-export default function Page() {
+export default async function Page() {
+  const novels = await getNovelList();
+  
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />

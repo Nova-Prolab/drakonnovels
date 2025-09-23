@@ -1,8 +1,7 @@
-import { novels } from '@/lib/data';
 import { ReaderView } from '@/components/reader-view';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getChapterContent, getNovelDetails } from '@/lib/github-service';
 
 type ReaderPageProps = {
   params: { 
@@ -12,9 +11,9 @@ type ReaderPageProps = {
 };
 
 export async function generateMetadata({ params }: ReaderPageProps): Promise<Metadata> {
-  const novel = novels.find(n => n.id === params.novelId);
+  const novel = await getNovelDetails(params.novelId);
   const chapterId = parseInt(params.chapterId, 10);
-  const chapter = novel?.chapters.find(c => c.id === chapterId);
+  const chapter = await getChapterContent(params.novelId, chapterId);
 
   if (!novel || !chapter) {
     return {
@@ -24,34 +23,37 @@ export async function generateMetadata({ params }: ReaderPageProps): Promise<Met
   }
 
   return {
-    title: `${novel.title} - Chapter ${chapter.id} | Story Weaver`,
-    description: `Read Chapter ${chapter.id} of ${novel.title}.`,
+    title: `${novel.title} - ${chapter.title} | Story Weaver`,
+    description: `Read ${chapter.title} of ${novel.title}.`,
   };
 }
 
-export default function ReaderPage({ params }: ReaderPageProps) {
-  const novel = novels.find(n => n.id === params.novelId);
+export default async function ReaderPage({ params }: ReaderPageProps) {
+  const novelId = params.novelId;
+  const chapterId = parseInt(params.chapterId, 10);
+
+  const novel = await getNovelDetails(novelId);
   if (!novel) {
     notFound();
   }
 
-  const chapterId = parseInt(params.chapterId, 10);
-  const chapter = novel.chapters.find(c => c.id === chapterId);
+  const chapter = await getChapterContent(novelId, chapterId);
   if (!chapter) {
     notFound();
   }
 
   const chapterIndex = novel.chapters.findIndex(c => c.id === chapterId);
+  if (chapterIndex === -1) {
+    notFound();
+  }
+  
   const prevChapter = chapterIndex > 0 ? novel.chapters[chapterIndex - 1] : null;
   const nextChapter = chapterIndex < novel.chapters.length - 1 ? novel.chapters[chapterIndex + 1] : null;
-
-  const coverImage = PlaceHolderImages.find(img => img.id === novel.coverImageId);
 
   return (
     <ReaderView 
       novel={novel} 
       chapter={chapter}
-      coverImageUrl={coverImage?.imageUrl}
       prevChapter={prevChapter}
       nextChapter={nextChapter}
     />

@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Novel } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useLibrary, useReadingProgress } from '@/lib/hooks';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -16,7 +15,6 @@ type NovelCardProps = {
 };
 
 export function NovelCard({ novel }: NovelCardProps) {
-  const coverImage = PlaceHolderImages.find(img => img.id === novel.coverImageId);
   const { library, addToLibrary, removeFromLibrary } = useLibrary();
   const { progress } = useReadingProgress();
 
@@ -40,20 +38,13 @@ export function NovelCard({ novel }: NovelCardProps) {
           <Link href={`/novels/${novel.id}`}>
               <CardContent className="p-0">
                 <div className="aspect-[2/3] relative">
-                  {coverImage ? (
-                    <Image
-                      src={coverImage.imageUrl}
-                      alt={`Cover of ${novel.title}`}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      data-ai-hint={coverImage.imageHint}
-                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-secondary flex items-center justify-center">
-                      <span className="text-muted-foreground text-sm">No Image</span>
-                    </div>
-                  )}
+                  <Image
+                    src={novel.coverImageUrl}
+                    alt={`Cover of ${novel.title}`}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                  />
                 </div>
               </CardContent>
           </Link>

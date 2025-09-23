@@ -1,28 +1,3 @@
 {
-  "placeholderImages": [
-    {
-      "id": "novel-cover-1",
-      "description": "Abstract cover with swirling colors",
-      "imageUrl": "https://images.unsplash.com/photo-1711185900590-b118146e3988?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZmFudGFzeSUyMGJvb2t8ZW58MHx8fHwxNzU4NTkzMTE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fantasy book"
-    },
-    {
-      "id": "novel-cover-2",
-      "description": "Geometric pattern cover",
-      "imageUrl": "https://images.unsplash.com/photo-1672236959779-1a1dcf0b0ab6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzY2llbmNlJTIwZmljdGlvbnxlbnwwfHx8fDE3NTg2MDAxMDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "science fiction"
-    },
-    {
-      "id": "novel-cover-3",
-      "description": "Minimalist cover with a single object",
-      "imageUrl": "https://images.unsplash.com/photo-1745359327678-d1204fa77b2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bXlzdGVyeSUyMG5vdmVsfGVufDB8fHx8MTc1ODYwMDEwOXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "mystery novel"
-    },
-    {
-      "id": "novel-cover-4",
-      "description": "Vintage style cover",
-      "imageUrl": "https://images.unsplash.com/photo-1688479294305-145dcf081313?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxoaXN0b3JpY2FsJTIwZmljdGlvbnxlbnwwfHx8fDE3NTg2MDAxMDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "historical fiction"
-    }
-  ]
+  "placeholderImages": []
 }
