@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
@@ -33,6 +34,8 @@ const getUniqueValues = (novels: Novel[], key: keyof Novel) => {
     return [...new Set(values as string[])].sort();
 }
 
+const NOVELS_PER_PAGE = 20;
+
 export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
   const [activeTab, setActiveTab] = useState(initialSearchTerm ? 'all' : 'all');
@@ -47,6 +50,7 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
   const [ageRatingFilter, setAgeRatingFilter] = useState<string>('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [page, setPage] = useState(1);
 
   const categories = useMemo(() => getUniqueValues(novels, 'category'), [novels]);
   const statuses = useMemo(() => getUniqueValues(novels, 'status'), [novels]);
@@ -77,6 +81,10 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
       setActiveTab('all');
     }
   }, [searchParams]);
+  
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, activeTab, categoryFilter, statusFilter, ageRatingFilter, selectedTags]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = e.target.value;
@@ -112,7 +120,7 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
     clearSearch();
   }
 
-  const filteredNovels = useMemo(() => {
+  const filteredNovelsSource = useMemo(() => {
     let novelsToFilter = novels;
 
     if (activeTab === 'library') {
@@ -138,10 +146,21 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
       if (selectedTags.length > 0) {
         novelsToFilter = novelsToFilter.filter(n => selectedTags.every(tag => n.tags.includes(tag)));
       }
+    } else if (activeTab === 'all') {
+      novelsToFilter = novels;
     }
 
     return novelsToFilter;
   }, [novels, searchTerm, activeTab, library, fuse, categoryFilter, statusFilter, ageRatingFilter, selectedTags]);
+  
+  const paginatedNovels = useMemo(() => {
+    if (activeTab === 'all') {
+      return filteredNovelsSource.slice(0, page * NOVELS_PER_PAGE);
+    }
+    return filteredNovelsSource;
+  }, [filteredNovelsSource, page, activeTab]);
+
+  const canLoadMore = activeTab === 'all' && paginatedNovels.length < filteredNovelsSource.length;
 
   const isSearching = searchTerm.length > 0;
   const showCarousels = activeTab === 'all' && !isSearching && !categoryFilter && !statusFilter && !ageRatingFilter && selectedTags.length === 0;
@@ -183,12 +202,17 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                       <div className="flex items-center justify-between border-b pb-4 mb-8">
                       <div>
                           <h2 className="text-2xl font-semibold tracking-tight">Search Results</h2>
-                          <p className="text-muted-foreground">Found {filteredNovels.length} results for &quot;{searchTerm}&quot;</p>
+                          <p className="text-muted-foreground">Found {filteredNovelsSource.length} results for &quot;{searchTerm}&quot;</p>
                       </div>
                       </div>
                   )}
                   <h2 className="text-2xl font-bold tracking-tight mb-4">All Novels</h2>
-                  <NovelList novels={filteredNovels} searchTerm={searchTerm} />
+                  <NovelList 
+                    novels={paginatedNovels} 
+                    searchTerm={searchTerm}
+                    canLoadMore={canLoadMore}
+                    onLoadMore={() => setPage(p => p + 1)} 
+                  />
                 </div>
             </TabsContent>
 
@@ -262,14 +286,16 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                 </CollapsibleContent>
                 </Collapsible>
                 <div className="mt-8">
-                    <NovelList novels={filteredNovels} searchTerm={searchTerm} />
+                    <NovelList novels={paginatedNovels} searchTerm={searchTerm} />
                 </div>
             </TabsContent>
 
             <TabsContent value="library">
-                <NovelList novels={filteredNovels} />
+                <NovelList novels={paginatedNovels} />
             </TabsContent>
         </Tabs>
     </div>
   );
 }
+
+    
