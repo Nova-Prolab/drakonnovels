@@ -186,7 +186,7 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                 <TabsList>
                 <TabsTrigger value="all">Todas las Novelas</TabsTrigger>
                 <TabsTrigger value="explore">Explorar</TabsTrigger>
-                <TabsTrigger value="library" disabled={!isReady}>Mi Biblioteca</TabsTrigger>
+                <TabsTrigger value="library" disabled={!isReady}>Biblioteca</TabsTrigger>
                 </TabsList>
             </div>
             
