@@ -22,7 +22,7 @@ export function ExpandableDescription({ description }: ExpandableDescriptionProp
     const isLongDescription = descriptionLines.length > MAX_LINES;
 
     return (
-        <div className="mt-6">
+        <div className="mt-4">
             <div
                 className={cn(
                     "prose prose-lg dark:prose-invert max-w-none font-sans relative overflow-hidden transition-all duration-500 ease-in-out",
