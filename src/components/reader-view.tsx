@@ -114,45 +114,43 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
                   <p key={index}>{paragraph}</p>
               ))}
             </div>
+
+            <footer className="mt-12 border-t pt-6">
+                <div className="flex justify-between gap-2">
+                  <div className="flex-1 flex justify-start">
+                    {prevChapter && (
+                      <Button asChild variant="outline" className="w-full sm:w-auto" title="Previous Chapter">
+                        <Link href={`/novels/${novel.id}/${prevChapter.id}`}>
+                          <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Previous</span>
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="flex-none">
+                    <Button asChild variant="secondary" title="All Chapters" className="w-full">
+                        <Link href={`/novels/${novel.id}/chapters`}>
+                            <List className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">All Chapters</span>
+                        </Link>
+                    </Button>
+                  </div>
+
+                  <div className="flex-1 flex justify-end">
+                    {nextChapter && (
+                      <Button asChild variant="outline" className="w-full sm:w-auto" title="Next Chapter">
+                        <Link href={`/novels/${novel.id}/${nextChapter.id}`}>
+                          <span className="hidden sm:inline">Next</span>
+                          <ArrowRight className="h-4 w-4 sm:ml-2" />
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+            </footer>
           </div>
         </main>
-
-        <footer className="sticky bottom-0 border-t bg-background/80 backdrop-blur-sm">
-          <div className="container mx-auto max-w-3xl px-4 py-3">
-              <div className="flex justify-between gap-2">
-                <div className="flex-1 flex justify-start">
-                  {prevChapter && (
-                    <Button asChild variant="outline" className="w-full sm:w-auto" title="Previous Chapter">
-                      <Link href={`/novels/${novel.id}/${prevChapter.id}`}>
-                        <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Previous</span>
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-                
-                <div className="flex-none">
-                  <Button asChild variant="secondary" title="All Chapters" className="w-full">
-                      <Link href={`/novels/${novel.id}/chapters`}>
-                          <List className="h-4 w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">All Chapters</span>
-                      </Link>
-                  </Button>
-                </div>
-
-                <div className="flex-1 flex justify-end">
-                  {nextChapter && (
-                    <Button asChild variant="outline" className="w-full sm:w-auto" title="Next Chapter">
-                      <Link href={`/novels/${novel.id}/${nextChapter.id}`}>
-                        <span className="hidden sm:inline">Next</span>
-                        <ArrowRight className="h-4 w-4 sm:ml-2" />
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </div>
-          </div>
-        </footer>
       </div>
     </div>
   );
