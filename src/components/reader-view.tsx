@@ -1,10 +1,11 @@
+
 "use client";
 
 import type { Novel, Chapter } from '@/lib/types';
 import { useTheme } from './theme-provider';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { ArrowLeft, ArrowRight, Home, Settings, List } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, Settings, List, CheckCircle, Circle } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
@@ -14,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
 import { ChapterTranslator } from './chapter-translator';
 import { useLoading } from './loading-provider';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 
 type ReaderViewProps = {
   novel: Novel;
@@ -24,40 +26,80 @@ type ReaderViewProps = {
 
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
   const { fontSize, font, isThemeReady, lineHeight, columnWidth, textAlign } = useTheme();
-  const { updateProgress } = useReadingProgress();
+  const { progress, updateProgress, markChapterAsRead, markChapterAsUnread, getChapterProgress } = useReadingProgress();
   const { startLoading } = useLoading();
+  
   const contentRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
 
-  // Reset content when chapter changes
+  const { isRead: isCurrentChapterRead } = getChapterProgress(novel.id, chapter.id);
+
+  // Reset content and scroll to top when chapter changes
   useEffect(() => {
     setDisplayedContent(chapter.content);
-  }, [chapter.content]);
+    if(mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+  }, [chapter.id, chapter.content]);
+
+  // Restore scroll position on initial load
+  useEffect(() => {
+    const novelProgress = progress[novel.id];
+    if (mainRef.current && novelProgress && novelProgress.chapterId === chapter.id) {
+        // Use a short timeout to ensure content is fully rendered
+        setTimeout(() => {
+            if (mainRef.current) {
+               mainRef.current.scrollTop = novelProgress.scrollPosition;
+            }
+        }, 100);
+    }
+  }, [chapter.id, progress, novel.id, isThemeReady]);
 
 
   useEffect(() => {
     const handleScroll = () => {
-      if (contentRef.current) {
-        const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
-        const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
-        updateProgress(novel.id, chapter.id, scrollPercentage);
+      if (mainRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
+        // The scrollable height is the total height minus the visible height
+        const actualScrollableHeight = scrollHeight - clientHeight;
+        updateProgress(novel.id, chapter.id, scrollTop, actualScrollableHeight);
       }
     };
     
-    const contentElement = contentRef.current;
-    contentElement?.addEventListener('scroll', handleScroll, { passive: true });
+    const mainElement = mainRef.current;
+    mainElement?.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
-      contentElement?.removeEventListener('scroll', handleScroll);
+      mainElement?.removeEventListener('scroll', handleScroll);
     };
   }, [novel.id, chapter.id, updateProgress]);
 
   const handleContentChange = (newContent: string) => {
     setDisplayedContent(newContent);
-    if(contentRef.current) {
-        contentRef.current.scrollTop = 0;
+    if(mainRef.current) {
+        mainRef.current.scrollTop = 0;
     }
   }
+
+  const handleMarkAsRead = () => {
+      if (mainRef.current) {
+          const { scrollHeight, clientHeight } = mainRef.current;
+          markChapterAsRead(novel.id, chapter.id, scrollHeight - clientHeight);
+          // Scroll to the bottom
+          mainRef.current.scrollTop = scrollHeight - clientHeight;
+      }
+  };
+
+  const handleMarkAsUnread = () => {
+      if (mainRef.current) {
+          const { scrollHeight, clientHeight } = mainRef.current;
+          markChapterAsUnread(novel.id, chapter.id, scrollHeight - clientHeight);
+          // Scroll to the top
+          mainRef.current.scrollTop = 0;
+      }
+  };
 
   const fontClass = 
     font === 'serif' ? 'font-serif' : 
@@ -66,8 +108,8 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
     'font-sans';
 
   return (
-    <div className={cn("bg-background text-foreground", isThemeReady ? fontClass : 'font-sans')}>
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
+    <div className={cn("bg-background text-foreground h-screen flex flex-col", isThemeReady ? fontClass : 'font-sans')}>
+      <header className="border-b bg-background/80 backdrop-blur-sm flex-shrink-0 z-10">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
              <Button asChild variant="ghost" size="icon" aria-label="Back to home">
@@ -88,6 +130,19 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
             </div>
           </div>
           <div className="flex items-center gap-1">
+             <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={isCurrentChapterRead ? handleMarkAsUnread : handleMarkAsRead}>
+                        {isCurrentChapterRead ? <CheckCircle className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5" />}
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>{isCurrentChapterRead ? 'Marcar como no leído' : 'Marcar como leído'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <ChapterTranslator 
                 chapterText={chapter.content} 
                 onContentChange={handleContentChange} 
@@ -107,11 +162,12 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
         </div>
       </header>
 
-      <div className="flex flex-col">
-        <main ref={contentRef} className="flex-1">
-          <div className={cn("container mx-auto px-4 py-8 md:py-12", columnWidth)}>
+      <main ref={mainRef} className="flex-1 overflow-y-auto">
+          <div 
+            ref={contentRef}
+            className={cn("container mx-auto px-4 py-8 md:py-12 transition-all duration-300", columnWidth)}>
             <div 
-              className={cn("prose prose-lg dark:prose-invert", textAlign === "justify" && "text-justify")}
+              className={cn("prose prose-lg dark:prose-invert max-w-none", textAlign === "justify" && "text-justify")}
               style={{ 
                 fontSize: `${fontSize}rem`,
                 lineHeight: lineHeight
@@ -162,7 +218,6 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
             </footer>
           </div>
         </main>
-      </div>
     </div>
   );
 }

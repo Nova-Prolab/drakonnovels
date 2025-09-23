@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useReadingProgress } from "@/lib/hooks";
@@ -18,14 +19,16 @@ type ChapterListProps = {
 const CHAPTERS_TO_SHOW = 5;
 
 export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListProps) {
-    const { progress, isReady } = useReadingProgress();
+    const { getChapterProgress, isReady, progress } = useReadingProgress();
     const { startLoading } = useLoading();
-    const novelProgress = progress[novel.id];
     const [showAll, setShowAll] = useState(false);
 
-    const lastReadChapterId = novelProgress?.chapterId ?? 0;
-    
-    const readChaptersCount = novel.chapters.filter(c => c.id <= lastReadChapterId).length;
+    const novelProgress = progress[novel.id];
+    const lastReadChapterId = novelProgress?.chapterId ?? -1;
+
+    const readChapters = novel.chapters.filter(c => getChapterProgress(novel.id, c.id).isRead);
+    const readChaptersCount = readChapters.length;
+
     const totalChapters = novel.chapters.length;
     const progressPercentage = totalChapters > 0 ? (readChaptersCount / totalChapters) * 100 : 0;
 
@@ -44,7 +47,9 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
             <div className="border rounded-lg overflow-hidden">
                 <ul className="divide-y">
                     {chaptersToShow.map(chapter => {
-                        const isRead = isReady && chapter.id <= lastReadChapterId;
+                        const { isRead } = getChapterProgress(novel.id, chapter.id);
+                        const isCurrent = chapter.id === lastReadChapterId;
+
                         return (
                             <li key={chapter.id}>
                                 <Link onClick={startLoading} href={`/novels/${novel.id}/${chapter.id}`} className="block p-4 hover:bg-accent transition-colors">
@@ -54,7 +59,7 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
                                                 {isRead ? (
                                                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                                                 ) : (
-                                                    <Circle className="h-5 w-5 text-muted-foreground/50" />
+                                                    <Circle className={cn("h-5 w-5", isCurrent ? "text-primary" : "text-muted-foreground/50")} />
                                                 )}
                                             </div>
                                         ) : (
