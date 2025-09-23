@@ -108,7 +108,7 @@ export async function getChapters(novelId: string): Promise<Chapter[]> {
     if (info?.capitulos && info.capitulos.length > 0) {
         return info.capitulos.map(c => ({
             id: c.id,
-            title: c.titulo,
+            title: `Capítulo ${c.id}: ${c.titulo}`,
             content: '', // Fetched on demand
         }));
     }
@@ -130,11 +130,11 @@ export async function getChapters(novelId: string): Promise<Chapter[]> {
         chapterFiles.map(async (file) => {
             const chapterId = parseInt(file.name.match(/(\d+)/)?.[0] || '0', 10);
             const content = await fetchRawContent(file.path);
-            let title = `Chapter ${chapterId}`;
+            let title = `Capítulo ${chapterId}`;
             if (content) {
                 const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
                 if (titleMatch && titleMatch[1]) {
-                    title = titleMatch[1];
+                    title = `Capítulo ${chapterId}: ${titleMatch[1].trim()}`;
                 }
             }
             return {
@@ -153,17 +153,10 @@ export async function getChapterContent(novelId: string, chapterId: number): Pro
     const content = await fetchRawContent(`${novelId}/chapter-${chapterId}.html`);
     if (!content) return null;
 
-    let title = `Chapter ${chapterId}`;
+    let title = `Capítulo ${chapterId}`;
     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
     if (titleMatch && titleMatch[1]) {
-        title = titleMatch[1].trim();
-    } else {
-        // Fallback to info.json if h1 is missing
-        const info = await getNovelInfo(novelId);
-        const chapterInfo = info?.capitulos?.find(c => c.id === chapterId);
-        if (chapterInfo && chapterInfo.titulo) {
-            title = chapterInfo.titulo;
-        }
+        title = `Capítulo ${chapterId}: ${titleMatch[1].trim()}`;
     }
     
     // Naive approach to strip HTML for plain text display
