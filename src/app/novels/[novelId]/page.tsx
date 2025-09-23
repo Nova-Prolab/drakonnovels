@@ -58,9 +58,11 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
                {novel.releaseDate && (
                 <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
                     <CalendarDays className="mr-2 h-4 w-4" />
-                    <span>
-                        Updated on {format(new Date(novel.releaseDate), 'MMM d, yyyy')}
-                    </span>
+                    <Link href={`/?q=${encodeURIComponent(novel.releaseDate)}`} className="hover:underline">
+                      <span>
+                          Updated on {format(new Date(novel.releaseDate), 'MMM d, yyyy')}
+                      </span>
+                    </Link>
                 </div>
               )}
               <div className="mt-4 flex flex-col gap-3">

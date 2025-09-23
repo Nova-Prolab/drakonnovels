@@ -21,7 +21,7 @@ type ExploreViewProps = {
 };
 
 const fuseOptions = {
-  keys: ['title', 'author', 'tags', 'category'],
+  keys: ['title', 'author', 'tags', 'category', 'releaseDate'],
   includeScore: true,
   threshold: 0.4,
 };
