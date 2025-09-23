@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
 import { useReadingProgress } from '@/lib/hooks';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
 
@@ -25,6 +25,11 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
   const { fontSize, font } = useTheme();
   const { updateProgress } = useReadingProgress();
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +49,7 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
   }, [novel.id, chapter.id, updateProgress]);
 
   return (
-    <div className={cn("bg-background text-foreground", font === 'serif' ? 'font-serif' : 'font-sans')}>
+    <div className={cn("bg-background text-foreground font-sans", isMounted && (font === 'serif' ? 'font-serif' : 'font-sans'))}>
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">

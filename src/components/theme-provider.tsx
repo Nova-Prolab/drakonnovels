@@ -13,19 +13,17 @@ type ThemeContextType = {
   setFontSize: React.Dispatch<React.SetStateAction<number>>;
   font: Font;
   setFont: (font: Font) => void;
+  isThemeReady: boolean;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useLocalStorage<Theme>('theme', 'dark');
-  const [fontSize, setFontSize] = useLocalStorage<number>('font-size', 1.0);
-  const [font, setFontState] = useLocalStorage<Font>('font', 'serif');
-  const [isMounted, setIsMounted] = useState(false);
+  const [theme, setThemeState, isThemeReady] = useLocalStorage<Theme>('theme', 'dark');
+  const [fontSize, setFontSize, isFontSizeReady] = useLocalStorage<number>('font-size', 1.0);
+  const [font, setFontState, isFontReady] = useLocalStorage<Font>('font', 'serif');
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isReady = isThemeReady && isFontSizeReady && isFontReady;
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
@@ -37,7 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 
   useEffect(() => {
-    if (isMounted) {
+    if (isReady) {
       const root = window.document.documentElement;
       root.classList.remove('light', 'dark');
       root.classList.add(theme);
@@ -47,7 +45,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       // We apply font-sans to the body for UI elements, reader view will override it.
       body.classList.add('font-sans');
     }
-  }, [theme, isMounted]);
+  }, [theme, isReady]);
 
   const value = {
     theme: theme,
@@ -56,6 +54,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setFontSize: setFontSize as React.Dispatch<React.SetStateAction<number>>,
     font: font,
     setFont,
+    isThemeReady: isReady,
   };
 
   return (
