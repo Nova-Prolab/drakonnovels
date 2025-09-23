@@ -76,44 +76,18 @@ export function useReadingProgress() {
     setProgress(prevProgress => ({
       ...prevProgress,
       [novelId]: { 
-        chapterId, 
-        // Preserve isRead status if we're just updating the chapter
-        isRead: prevProgress[novelId]?.chapterId === chapterId ? prevProgress[novelId].isRead : false 
+        chapterId,
       },
-    }));
-  }, [setProgress]);
-
-
-  const markChapterAsRead = useCallback((novelId: string, chapterId: number) => {
-    setProgress(prev => ({
-      ...prev,
-      [novelId]: { chapterId, isRead: true }
-    }));
-  }, [setProgress]);
-
-  const markChapterAsUnread = useCallback((novelId: string, chapterId: number) => {
-    setProgress(prev => ({
-      ...prev,
-      [novelId]: { chapterId, isRead: false }
     }));
   }, [setProgress]);
 
   const getChapterProgress = useCallback((novelId: string, chapterId: number) => {
       const novelProgress = progress[novelId];
-      if (!novelProgress) return { isRead: false };
+      if (!novelProgress) return { isLastRead: false };
       
-      // If the user is on a chapter further than saved, this chapter is read
-      if (novelProgress.chapterId > chapterId) {
-        return { isRead: true };
-      }
-      // If this is the chapter the user is on
-      if (novelProgress.chapterId === chapterId) {
-          return { isRead: novelProgress.isRead };
-      }
-      // If the user is on a chapter before this one
-      return { isRead: false };
+      return { isLastRead: novelProgress.chapterId === chapterId };
   }, [progress]);
 
 
-  return { progress, updateCurrentChapter, markChapterAsRead, markChapterAsUnread, getChapterProgress, isReady };
+  return { progress, updateCurrentChapter, getChapterProgress, isReady };
 }

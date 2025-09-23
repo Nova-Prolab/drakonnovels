@@ -5,7 +5,7 @@ import type { Novel, Chapter } from '@/lib/types';
 import { useTheme } from './theme-provider';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { ArrowLeft, ArrowRight, Home, Settings, List, CheckCircle, Circle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, Settings, List } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
@@ -15,7 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
 import { ChapterTranslator } from './chapter-translator';
 import { useLoading } from './loading-provider';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
+import { ChapterAudioPlayer } from './chapter-audio-player';
 
 type ReaderViewProps = {
   novel: Novel;
@@ -26,14 +26,13 @@ type ReaderViewProps = {
 
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
   const { fontSize, font, isThemeReady, lineHeight, columnWidth, textAlign } = useTheme();
-  const { updateCurrentChapter, markChapterAsRead, markChapterAsUnread, getChapterProgress } = useReadingProgress();
+  const { updateCurrentChapter } = useReadingProgress();
   const { startLoading } = useLoading();
   
   const mainRef = useRef<HTMLElement>(null);
   
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
 
-  const { isRead: isCurrentChapterRead } = getChapterProgress(novel.id, chapter.id);
 
   useEffect(() => {
     updateCurrentChapter(novel.id, chapter.id);
@@ -52,14 +51,6 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
         mainRef.current.scrollTop = 0;
     }
   }
-
-  const handleMarkAsRead = () => {
-      markChapterAsRead(novel.id, chapter.id);
-  };
-
-  const handleMarkAsUnread = () => {
-      markChapterAsUnread(novel.id, chapter.id);
-  };
 
   const fontClass = 
     font === 'serif' ? 'font-serif' : 
@@ -90,18 +81,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
             </div>
           </div>
           <div className="flex items-center gap-1">
-             <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={isCurrentChapterRead ? handleMarkAsUnread : handleMarkAsRead}>
-                        {isCurrentChapterRead ? <CheckCircle className="h-5 w-5 text-primary" /> : <Circle className="h-5 w-5" />}
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>{isCurrentChapterRead ? 'Marcar como no leído' : 'Marcar como leído'}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <ChapterAudioPlayer chapterText={chapter.content} />
 
             <ChapterTranslator 
                 chapterText={chapter.content} 

@@ -23,8 +23,6 @@ export type Novel = {
 export type ReadingProgress = {
   [novelId: string]: {
     chapterId: number;
-    /** Is the chapter fully read */
-    isRead: boolean;
   };
 };
 
