@@ -5,7 +5,7 @@ import type { Novel } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLibrary } from '@/lib/hooks';
-import { Search, X, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, X, Filter, ChevronDown } from 'lucide-react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import Fuse from 'fuse.js';
 import { Button } from './ui/button';
@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { cn } from '@/lib/utils';
 
 type ExploreViewProps = {
   novels: Novel[];
@@ -126,10 +125,9 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
   }, [novels, searchTerm, activeTab, library, fuse, categoryFilter, statusFilter, ageRatingFilter, selectedTags]);
 
   const isSearching = searchTerm.length > 0;
-  const isExploring = activeTab === 'explore';
 
   return (
-    <div className="space-y-8">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
       <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
         <div className="relative w-full md:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -145,13 +143,11 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
             </Button>
           )}
         </div>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All Novels</TabsTrigger>
-            <TabsTrigger value="explore">Explore</TabsTrigger>
-            <TabsTrigger value="library" disabled={!isReady}>My Library</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <TabsList>
+          <TabsTrigger value="all">All Novels</TabsTrigger>
+          <TabsTrigger value="explore">Explore</TabsTrigger>
+          <TabsTrigger value="library" disabled={!isReady}>My Library</TabsTrigger>
+        </TabsList>
       </div>
       
       <TabsContent value="all">
@@ -243,6 +239,6 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
       <TabsContent value="library">
         <NovelList novels={filteredNovels} />
       </TabsContent>
-    </div>
+    </Tabs>
   );
 }
