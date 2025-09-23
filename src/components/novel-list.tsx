@@ -8,10 +8,17 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLibrary } from '@/lib/hooks';
 import { Search } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import Fuse from 'fuse.js';
 
 type NovelListProps = {
   novels: Novel[];
   initialSearchTerm?: string;
+};
+
+const fuseOptions = {
+  keys: ['title', 'author', 'tags', 'category'],
+  includeScore: true,
+  threshold: 0.4, // Adjust this for more/less fuzzy matching
 };
 
 export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
@@ -19,6 +26,8 @@ export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
   const [activeTab, setActiveTab] = useState('all');
   const { library, isReady } = useLibrary();
   const searchParams = useSearchParams();
+
+  const fuse = useMemo(() => new Fuse(novels, fuseOptions), [novels]);
 
   useEffect(() => {
     const query = searchParams.get('q');
@@ -33,18 +42,16 @@ export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
     if (activeTab === 'library') {
       novelsToFilter = novels.filter(novel => library.includes(novel.id));
     }
+    
+    // Create a new Fuse instance if the underlying list changes
+    const currentFuse = new Fuse(novelsToFilter, fuseOptions);
 
     if (!searchTerm) {
       return novelsToFilter;
     }
 
-    const lowercasedTerm = searchTerm.toLowerCase();
-    return novelsToFilter.filter(novel => 
-      novel.title.toLowerCase().includes(lowercasedTerm) ||
-      novel.author.toLowerCase().includes(lowercasedTerm) ||
-      novel.tags.some(tag => tag.toLowerCase().includes(lowercasedTerm)) ||
-      novel.category.toLowerCase().includes(lowercasedTerm)
-    );
+    return currentFuse.search(searchTerm).map(result => result.item);
+
   }, [novels, searchTerm, activeTab, library]);
 
   return (
