@@ -50,7 +50,9 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     }
     
     // Cleanup any previous utterance
-    cleanUpSpeech();
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+    }
 
     const utterance = new SpeechSynthesisUtterance(chapterText);
     utterance.lang = "es-ES";
@@ -70,12 +72,6 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     };
     
     utteranceRef.current = utterance;
-
-    // A common trick to "wake up" the speech synthesis API
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-    }
-    
     window.speechSynthesis.speak(utterance);
   };
   
