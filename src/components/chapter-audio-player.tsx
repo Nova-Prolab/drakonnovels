@@ -1,6 +1,3 @@
-
-"use client";
-
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from './ui/button';
 import { Play, Pause, Square } from 'lucide-react';
@@ -24,6 +21,7 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange, onBoundary 
   const cleanUpSpeech = useCallback(() => {
     if (typeof window !== "undefined" && window.speechSynthesis) {
        if (utteranceRef.current) {
+        // Nullify all event handlers to prevent lingering events from firing
         utteranceRef.current.onstart = null;
         utteranceRef.current.onpause = null;
         utteranceRef.current.onresume = null;
@@ -87,6 +85,10 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange, onBoundary 
       }
     };
     utterance.onerror = (event) => {
+      // Don't show toast if it's a cancellation error, which is expected
+      if (event.error === 'canceled') {
+        return;
+      }
       console.error("SpeechSynthesis Error:", event);
       toast({
           title: "Error de Audio",
@@ -131,11 +133,12 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange, onBoundary 
   };
 
   const handleStop = () => {
-    cleanUpSpeech();
+    // Synchronously update the state before performing the async cleanup
     setSpeechState("idle");
     onParagraphChange(-1);
     onBoundary(-1);
     currentParagraphIndexRef.current = 0;
+    cleanUpSpeech();
   };
 
   const handleMainButtonClick = () => {

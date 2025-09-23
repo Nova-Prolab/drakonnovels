@@ -1,5 +1,3 @@
-"use client";
-
 import { useTheme } from "./theme-provider";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
