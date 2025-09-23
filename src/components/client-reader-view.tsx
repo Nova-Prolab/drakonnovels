@@ -15,6 +15,7 @@ import Image from 'next/image';
 import { ChapterTranslator } from './chapter-translator';
 import { useLoading } from './loading-provider';
 import { ChapterAudioPlayer } from './chapter-audio-player';
+import { Skeleton } from './ui/skeleton';
 
 type ReaderViewProps = {
   novel: Novel;
@@ -109,9 +110,44 @@ export function ClientReaderView({ novel, chapter, prevChapter, nextChapter }: R
     font === 'merriweather' ? 'font-merriweather' :
     font === 'lato' ? 'font-lato' :
     'font-sans';
+  
+  if (!isThemeReady) {
+    return (
+      <div className="h-screen flex flex-col">
+        <header className="border-b flex-shrink-0 z-10">
+          <div className="container mx-auto flex h-16 items-center justify-between px-4">
+             <div className="flex items-center gap-2">
+                <Skeleton className="h-10 w-10" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+             </div>
+             <div className="flex items-center gap-2">
+                <Skeleton className="h-10 w-10" />
+                <Skeleton className="h-10 w-10" />
+                <Skeleton className="h-10 w-10" />
+             </div>
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto">
+           <div className="container mx-auto px-4 py-8 md:py-12">
+              <Skeleton className="h-10 w-3/4 mb-8" />
+              <div className="space-y-4">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-5/6" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-3/4" />
+              </div>
+           </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
-    <div className={cn("bg-background text-foreground h-screen flex flex-col", isThemeReady ? fontClass : 'font-sans')}>
+    <div className={cn("bg-background text-foreground h-screen flex flex-col", fontClass)}>
       <header className="border-b bg-background/80 backdrop-blur-sm flex-shrink-0 z-10">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">

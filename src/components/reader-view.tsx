@@ -8,7 +8,7 @@ type ReaderViewProps = {
   nextChapter: Chapter | null;
 };
 
-// This component remains a Server Component (or can be used in one).
+// This component remains a Server Component.
 // It fetches no data but acts as a bridge, passing server-side props
 // to the Client Component that will handle all interactivity.
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
