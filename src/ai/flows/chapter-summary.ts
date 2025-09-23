@@ -38,14 +38,17 @@ const summarizeChapterPrompt = ai.definePrompt({
   name: 'summarizeChapterPrompt',
   input: {schema: SummarizeChapterInputSchema},
   output: {schema: SummarizeChapterOutputSchema},
-  prompt: `Generate a list of the 4 to 6 most important events from the provided chapter text of the novel "{{novelTitle}}". 
+  prompt: `Detect the language of the following chapter from the novel "{{novelTitle}}".
+Generate a list of the 4 to 6 most important events from the provided chapter text.
 For each event, create a concise "phrase" that summarizes it.
 Then, write a detailed "explanation" for that phrase, elaborating on the event and its context within the chapter.
 Finally, assign a "color" for highlighting the phrase from one of the following options: 'blue', 'green', 'purple', 'orange', 'red'. Use different colors for different events.
 
+It is crucial that the entire output (phrases, explanations, etc.) is in the same language as the detected chapter text.
+
 Chapter Text:
 {{{chapterText}}}`,
-  system: 'You are a world-class book summarizer. Your task is to identify key events and provide detailed context for them in a structured format.'
+  system: 'You are a world-class book summarizer. Your task is to identify key events and provide detailed context for them in a structured format, always responding in the language of the provided text.'
 });
 
 const summarizeChapterFlow = ai.defineFlow(

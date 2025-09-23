@@ -6,9 +6,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Loader2, BookText, Info } from 'lucide-react';
 import { getChapterSummary } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { ScrollArea } from './ui/scroll-area';
 
 type SummaryItem = {
   phrase: string;
@@ -82,22 +83,24 @@ export function ChapterSummary({ novelTitle, chapterNumber, chapterText }: Chapt
           {summary.length > 0 && !isLoading && (
              <div className="text-base leading-relaxed space-y-2">
                 {summary.map((item, index) => (
-                  <Popover key={index}>
-                    <PopoverTrigger asChild>
+                  <Dialog key={index}>
+                    <DialogTrigger asChild>
                       <span className={cn("font-medium rounded-md px-1 py-0.5 cursor-pointer transition-colors hover:brightness-95", highlightColors[item.color] || highlightColors.blue)}>
                         {item.phrase}
                       </span>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 shadow-xl" align="start">
-                      <div className="space-y-2">
-                        <h4 className="font-semibold flex items-center gap-2">
-                          <Info className="h-4 w-4 text-blue-500" />
-                          Más detalles
-                        </h4>
-                        <p className="text-sm text-muted-foreground">{item.explanation}</p>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                           <Info className="h-5 w-5 text-blue-500" />
+                           Más detalles
+                        </DialogTitle>
+                      </DialogHeader>
+                      <ScrollArea className="max-h-[60vh] pr-4">
+                        <p className="text-base text-muted-foreground py-4">{item.explanation}</p>
+                      </ScrollArea>
+                    </DialogContent>
+                  </Dialog>
                 ))}
              </div>
           )}
