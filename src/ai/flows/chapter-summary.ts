@@ -20,32 +20,15 @@ const SummarizeChapterInputSchema = z.object({
 });
 export type SummarizeChapterInput = z.infer<typeof SummarizeChapterInputSchema>;
 
-const ImportantEventsOutputSchema = z.object({
-  importantEvents: z.array(z.string()).describe('A list of the most important events that occurred in this chapter.')
-});
-export type ImportantEventsOutput = z.infer<typeof ImportantEventsOutputSchema>;
 
 const SummarizeChapterOutputSchema = z.object({
-  summary: z.string().describe('A short summary of the chapter.'),
+  summary: z.array(z.object({
+    phrase: z.string().describe("The highlighted phrase from the summary."),
+    explanation: z.string().describe("A detailed explanation of the phrase, referencing events from the chapter."),
+    color: z.string().describe("A thematic color for the highlight (e.g., 'blue', 'green', 'purple', 'orange', 'red').")
+  })).describe("An array of summary objects, each containing a phrase, an explanation, and a color for highlighting.")
 });
 export type SummarizeChapterOutput = z.infer<typeof SummarizeChapterOutputSchema>;
-
-const getImportantEvents = ai.defineTool({
-    name: 'getImportantEvents',
-    description: 'Retrieves a list of the most important events from the chapter.',
-    inputSchema: z.object({
-      chapterText: z.string().describe('The text content of the chapter to be summarized.'),
-    }),
-    outputSchema: ImportantEventsOutputSchema,
-  },
-  async (input) => {
-    // This can call any typescript function.
-    console.log("TOOL: Summarizing to retrieve most important events.");
-    return {
-      importantEvents: []
-    };
-  }
-);
 
 export async function summarizeChapter(input: SummarizeChapterInput): Promise<SummarizeChapterOutput> {
   return summarizeChapterFlow(input);
@@ -55,9 +38,14 @@ const summarizeChapterPrompt = ai.definePrompt({
   name: 'summarizeChapterPrompt',
   input: {schema: SummarizeChapterInputSchema},
   output: {schema: SummarizeChapterOutputSchema},
-  tools: [getImportantEvents],
-  prompt: `Summarize chapter {{chapterNumber}} of the novel "{{novelTitle}}" in a few sentences, including the important events (if any) that you retrieved with the getImportantEvents tool.\n\nChapter Text: {{{chapterText}}} `,
-  system: 'You are a world-class book summarizer. If there are important events that you retrieved with the getImportantEvents tool, then you MUST include them in your summary.'
+  prompt: `Generate a list of the 4 to 6 most important events from the provided chapter text of the novel "{{novelTitle}}". 
+For each event, create a concise "phrase" that summarizes it.
+Then, write a detailed "explanation" for that phrase, elaborating on the event and its context within the chapter.
+Finally, assign a "color" for highlighting the phrase from one of the following options: 'blue', 'green', 'purple', 'orange', 'red'. Use different colors for different events.
+
+Chapter Text:
+{{{chapterText}}}`,
+  system: 'You are a world-class book summarizer. Your task is to identify key events and provide detailed context for them in a structured format.'
 });
 
 const summarizeChapterFlow = ai.defineFlow(
