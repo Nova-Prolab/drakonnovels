@@ -4,7 +4,7 @@ import type { Novel, Chapter } from '@/lib/types';
 import { useTheme } from './theme-provider';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { ArrowLeft, ArrowRight, Home, Settings, Languages } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, Settings, List } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
@@ -23,16 +23,11 @@ type ReaderViewProps = {
 };
 
 export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextChapter }: ReaderViewProps) {
-  const { fontSize, font } = useTheme();
+  const { fontSize, font, isThemeReady } = useTheme();
   const { updateProgress } = useReadingProgress();
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  
   // Reset content when chapter changes
   useEffect(() => {
     setDisplayedContent(chapter.content);
@@ -64,7 +59,7 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
   }
 
   return (
-    <div className={cn("bg-background text-foreground", isMounted && (font === 'serif' ? 'font-serif' : 'font-sans'))}>
+    <div className={cn("bg-background text-foreground", isThemeReady && (font === 'serif' ? 'font-serif' : 'font-sans'))}>
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
@@ -85,7 +80,7 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
               </div>
             </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
             <ChapterTranslator 
                 chapterText={chapter.content} 
                 onContentChange={handleContentChange} 
@@ -117,21 +112,29 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
             ))}
           </div>
 
-          <div className="mt-12 flex justify-between border-t pt-6">
+          <div className="mt-12 flex justify-between border-t pt-6 gap-2">
             {prevChapter ? (
               <Button asChild variant="outline">
                 <Link href={`/novels/${novel.id}/${prevChapter.id}`}>
                   <ArrowLeft className="mr-2 h-4 w-4" /> Previous
                 </Link>
               </Button>
-            ) : <div />}
+            ) : <div className="flex-1" />}
+            
+            <Button asChild variant="secondary">
+                <Link href={`/novels/${novel.id}/chapters`}>
+                    <List className="mr-2 h-4 w-4" />
+                    All Chapters
+                </Link>
+            </Button>
+
             {nextChapter ? (
               <Button asChild variant="outline">
                 <Link href={`/novels/${novel.id}/${nextChapter.id}`}>
                   Next <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-            ) : <div />}
+            ) : <div className="flex-1" />}
           </div>
         </div>
       </main>
