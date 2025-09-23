@@ -13,7 +13,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
 import { ChapterTranslator } from './chapter-translator';
-import { CommentsSheet } from './comments-sheet';
 
 type ReaderViewProps = {
   novel: Novel;
@@ -83,7 +82,6 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <CommentsSheet novelId={novel.id} chapterId={chapter.id} />
             <ChapterTranslator 
                 chapterText={chapter.content} 
                 onContentChange={handleContentChange} 

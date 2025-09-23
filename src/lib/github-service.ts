@@ -1,4 +1,4 @@
-import type { GithubContent, NovelInfo, Chapter, Novel, Comment } from './types';
+import type { GithubContent, NovelInfo, Chapter, Novel } from './types';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/Nova-Prolab/novels/contents/';
 const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Nova-Prolab/novels/main/';
@@ -140,17 +140,4 @@ export async function getChapterContent(novelId: string, chapterId: number): Pro
         title: title,
         content: plainContent
     };
-}
-
-export async function getChapterComments(novelId: string, chapterId: number): Promise<Comment[]> {
-    const content = await fetchRawContent(`${novelId}/Comments/comments-chapter-${chapterId}.json`);
-    if (!content) return [];
-    try {
-        const comments = JSON.parse(content);
-        // Transform timestamps if needed, or other data massaging
-        return comments as Comment[];
-    } catch (error) {
-        console.error(`Error parsing comments for ${novelId} ch ${chapterId}:`, error);
-        return [];
-    }
 }

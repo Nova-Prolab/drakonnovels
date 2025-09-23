@@ -57,15 +57,3 @@ export type NovelInfo = {
   status: string;
   rating_platform: number;
 };
-
-export type Comment = {
-  id: string;
-  name: string;
-  content: string;
-  timestamp: number;
-  avatarUrl: string;
-  likes: number;
-  replies: Comment[];
-};
-
-
