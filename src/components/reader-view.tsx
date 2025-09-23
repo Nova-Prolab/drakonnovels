@@ -113,28 +113,36 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
           </div>
 
           <div className="mt-12 flex justify-between border-t pt-6 gap-2">
-            {prevChapter ? (
-              <Button asChild variant="outline">
-                <Link href={`/novels/${novel.id}/${prevChapter.id}`}>
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Previous
-                </Link>
-              </Button>
-            ) : <div className="flex-1" />}
+            <div className="flex-1 flex justify-start">
+              {prevChapter && (
+                <Button asChild variant="outline" className="sm:w-auto" size="icon" title="Previous Chapter">
+                  <Link href={`/novels/${novel.id}/${prevChapter.id}`}>
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="sr-only sm:not-sr-only sm:ml-2">Previous</span>
+                  </Link>
+                </Button>
+              )}
+            </div>
             
-            <Button asChild variant="secondary">
-                <Link href={`/novels/${novel.id}/chapters`}>
-                    <List className="mr-2 h-4 w-4" />
-                    All Chapters
-                </Link>
-            </Button>
-
-            {nextChapter ? (
-              <Button asChild variant="outline">
-                <Link href={`/novels/${novel.id}/${nextChapter.id}`}>
-                  Next <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+            <div className="flex-none">
+              <Button asChild variant="secondary" title="All Chapters">
+                  <Link href={`/novels/${novel.id}/chapters`}>
+                      <List className="h-4 w-4" />
+                      <span className="sr-only sm:not-sr-only sm:ml-2">All Chapters</span>
+                  </Link>
               </Button>
-            ) : <div className="flex-1" />}
+            </div>
+
+            <div className="flex-1 flex justify-end">
+              {nextChapter && (
+                <Button asChild variant="outline" className="sm:w-auto" size="icon" title="Next Chapter">
+                  <Link href={`/novels/${novel.id}/${nextChapter.id}`}>
+                    <span className="sr-only sm:not-sr-only sm:mr-2">Next</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </main>
