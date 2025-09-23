@@ -60,7 +60,7 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
                                         )}
                                         <div>
                                             <p className={cn("font-medium", isRead ? "text-muted-foreground" : "text-foreground")}>
-                                                Chapter {chapter.id}: {chapter.title}
+                                                {chapter.title}
                                             </p>
                                         </div>
                                     </div>
