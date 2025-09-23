@@ -1,9 +1,9 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Loader2, BookText } from 'lucide-react';
 import { getChapterSummary } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
@@ -19,50 +19,50 @@ export function ChapterSummary({ novelTitle, chapterNumber, chapterText }: Chapt
   const [error, setError] = useState('');
   const [isGenerated, setIsGenerated] = useState(false);
 
-  const handleSummarize = async () => {
+  const handleSummarize = useCallback(async () => {
+    if (isGenerated || isLoading) return;
+
     setIsLoading(true);
     setError('');
     const result = await getChapterSummary({ novelTitle, chapterNumber, chapterText });
     setIsLoading(false);
+
     if (result.summary) {
       setSummary(result.summary);
       setIsGenerated(true);
     } else {
       setError(result.error || 'Ocurrió un error desconocido.');
     }
+  }, [isGenerated, isLoading, novelTitle, chapterNumber, chapterText]);
+
+  const handleAccordionToggle = (value: string) => {
+    if (value === 'summary' && !isGenerated) {
+      handleSummarize();
+    }
   };
 
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion type="single" collapsible className="w-full" onValueChange={handleAccordionToggle}>
       <AccordionItem value="summary">
         <AccordionTrigger className="hover:no-underline">
           <div className="flex items-center gap-2 font-semibold">
-            <Sparkles className="h-5 w-5 text-amber-500" />
-            <span>Resumen del Capítulo con IA</span>
+            <BookText className="h-5 w-5" />
+            <span>Resumen del Capítulo</span>
           </div>
         </AccordionTrigger>
         <AccordionContent className="pt-4 space-y-4">
-          {!isGenerated && !isLoading && (
-            <div className="flex flex-col items-center justify-center space-y-4 text-center p-4 border rounded-lg bg-card text-card-foreground">
-                <p className="text-sm text-muted-foreground">Obtén un resumen rápido de este capítulo.</p>
-                <Button onClick={handleSummarize}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Generar Resumen
-                </Button>
-            </div>
-          )}
           {isLoading && (
             <div className="flex items-center justify-center p-8">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           )}
-          {error && (
+          {error && !isLoading && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {summary && (
+          {summary && !isLoading && (
             <p className="text-base leading-relaxed">{summary}</p>
           )}
         </AccordionContent>
