@@ -1,145 +1,38 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
 import type { Novel } from '@/lib/types';
 import { NovelCard } from './novel-card';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useLibrary } from '@/lib/hooks';
-import { Search, X } from 'lucide-react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import Fuse from 'fuse.js';
-import { Button } from './ui/button';
+import { Search } from 'lucide-react';
 
 type NovelListProps = {
   novels: Novel[];
-  initialSearchTerm?: string;
+  searchTerm?: string;
 };
 
-const fuseOptions = {
-  keys: ['title', 'author', 'tags', 'category'],
-  includeScore: true,
-  threshold: 0.4, // Adjust this for more/less fuzzy matching
-};
-
-export function NovelList({ novels, initialSearchTerm = '' }: NovelListProps) {
-  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-  const [activeTab, setActiveTab] = useState('all');
-  const { library, isReady } = useLibrary();
+export function NovelList({ novels, searchTerm }: NovelListProps) {
   
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
+  const isSearching = searchTerm && searchTerm.length > 0;
 
-  const fuse = useMemo(() => new Fuse(novels, fuseOptions), [novels]);
-
-  useEffect(() => {
-    const query = searchParams.get('q');
-    if (typeof query === 'string') {
-      setSearchTerm(query);
-    } else {
-        // Clear search term if 'q' param is removed from URL
-        setSearchTerm('');
-    }
-  }, [searchParams]);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
-    
-    const params = new URLSearchParams(searchParams);
-    if (newSearchTerm) {
-      params.set('q', newSearchTerm);
-    } else {
-      params.delete('q');
-    }
-    // Using router.replace to avoid adding search history for each keystroke
-    router.replace(`${pathname}?${params.toString()}`);
-  };
-
-  const clearSearch = () => {
-    setSearchTerm('');
-    const params = new URLSearchParams(searchParams);
-    params.delete('q');
-    router.replace(`${pathname}?${params.toString()}`);
-  };
-
-
-  const filteredNovels = useMemo(() => {
-    let novelsToFilter = novels;
-
-    if (activeTab === 'library') {
-      novelsToFilter = novels.filter(novel => library.includes(novel.id));
-    }
-    
-    // Create a new Fuse instance if the underlying list changes
-    const currentFuse = new Fuse(novelsToFilter, fuseOptions);
-
-    if (!searchTerm) {
-      return novelsToFilter;
-    }
-
-    return currentFuse.search(searchTerm).map(result => result.item);
-
-  }, [novels, searchTerm, activeTab, library]);
-
-  const isSearching = searchTerm.length > 0;
+  if (novels.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+        <Search className="w-16 h-16 text-muted-foreground mb-4"/>
+        <h3 className="text-xl font-semibold">No Novels Found</h3>
+        <p className="text-muted-foreground mt-2">
+            {isSearching
+                ? `No results found for "${searchTerm}". Try adjusting your filters.`
+                : "No novels match the current criteria."
+            }
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="relative w-full md:max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input 
-            placeholder="Search by title, author, or tag..." 
-            className="pl-10"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </div>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All Novels</TabsTrigger>
-            <TabsTrigger value="explore">Explore</TabsTrigger>
-            <TabsTrigger value="library" disabled={!isReady}>My Library</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-      
-      {isSearching && (
-        <div className="flex items-center justify-between border-b pb-4">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Search Results</h2>
-            <p className="text-muted-foreground">Showing results for &quot;{searchTerm}&quot;</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={clearSearch}>
-            <X className="mr-2 h-4 w-4" />
-            Clear
-          </Button>
-        </div>
-      )}
-
-
-      {filteredNovels.length > 0 ? (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {filteredNovels.map((novel) => (
-            <NovelCard key={novel.id} novel={novel} />
-          ))}
-        </div>
-      ) : (
-         <div className="flex flex-col items-center justify-center text-center py-16 px-4">
-            <Search className="w-16 h-16 text-muted-foreground mb-4"/>
-            <h3 className="text-xl font-semibold">No Novels Found</h3>
-            <p className="text-muted-foreground mt-2">
-                {isSearching
-                    ? `No results found for "${searchTerm}".`
-                    : activeTab === 'library'
-                    ? "You haven't added any novels to your library yet."
-                    : "Try adjusting your search or filter."
-                }
-            </p>
-         </div>
-      )}
+    <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      {novels.map((novel) => (
+        <NovelCard key={novel.id} novel={novel} />
+      ))}
     </div>
   );
 }
