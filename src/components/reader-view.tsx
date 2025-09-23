@@ -21,17 +21,16 @@ const lato = Lato({ subsets: ['latin'], weight: ['400', '700'], variable: '--fon
 // Prepara las props, incluyendo las clases de las fuentes,
 // y las pasa al componente de cliente.
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
-  const fontClasses = [lora.variable, merriweather.variable, lato.variable].join(' ');
-
   return (
     <ThemeProvider>
-      <ClientReaderView 
-        novel={novel} 
-        chapter={chapter}
-        prevChapter={prevChapter}
-        nextChapter={nextChapter}
-        fontClasses={fontClasses}
-      />
+      <div className={cn(lora.variable, merriweather.variable, lato.variable)}>
+          <ClientReaderView 
+            novel={novel} 
+            chapter={chapter}
+            prevChapter={prevChapter}
+            nextChapter={nextChapter}
+          />
+      </div>
     </ThemeProvider>
   );
 }
