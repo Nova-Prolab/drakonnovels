@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
 import { es } from 'date-fns/locale';
+import { ThemeProvider } from '@/components/theme-provider';
 
 type NovelDetailsPageProps = {
   params: {
@@ -41,66 +42,68 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Header />
-      <main className="container mx-auto flex-1 px-4 py-8 md:py-12">
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-          <div className="md:col-span-1">
-            <div className="sticky top-24">
-              <div className="aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg">
-                <Image
-                  src={novel.coverImageUrl}
-                  alt={`Cover of ${novel.title}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-              </div>
-               {novel.releaseDate && (
-                <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
-                    <CalendarDays className="mr-2 h-4 w-4" />
-                    <Link href={`/?q=${encodeURIComponent(novel.releaseDate)}`} className="hover:underline">
-                      <span>
-                          Actualizado el {format(new Date(novel.releaseDate), 'd MMM, yyyy', { locale: es })}
-                      </span>
-                    </Link>
+    <ThemeProvider>
+      <div className="flex min-h-screen flex-col bg-background">
+        <Header />
+        <main className="container mx-auto flex-1 px-4 py-8 md:py-12">
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            <div className="md:col-span-1">
+              <div className="sticky top-24">
+                <div className="aspect-[2/3] relative rounded-lg overflow-hidden shadow-lg">
+                  <Image
+                    src={novel.coverImageUrl}
+                    alt={`Cover of ${novel.title}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
                 </div>
-              )}
-              <div className="mt-4 flex flex-col gap-3">
-                 <ReadingProgressButton novelId={novel.id} chapters={novel.chapters} />
+                 {novel.releaseDate && (
+                  <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      <Link href={`/?q=${encodeURIComponent(novel.releaseDate)}`} className="hover:underline">
+                        <span>
+                            Actualizado el {format(new Date(novel.releaseDate), 'd MMM, yyyy', { locale: es })}
+                        </span>
+                      </Link>
+                  </div>
+                )}
+                <div className="mt-4 flex flex-col gap-3">
+                   <ReadingProgressButton novelId={novel.id} chapters={novel.chapters} />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="md:col-span-2">
-            <Link href={`/?q=${encodeURIComponent(novel.category)}`} className="text-sm font-medium text-primary hover:underline">
-              {novel.category}
-            </Link>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-1">{novel.title}</h1>
-            <p className="mt-2 text-lg text-muted-foreground">
-              por{' '}
-              <Link href={`/?q=${encodeURIComponent(novel.author)}`} className="text-primary hover:underline">
-                {novel.author}
+            <div className="md:col-span-2">
+              <Link href={`/?q=${encodeURIComponent(novel.category)}`} className="text-sm font-medium text-primary hover:underline">
+                {novel.category}
               </Link>
-            </p>
-            
-            <ExpandableDescription description={novel.description} className="mt-6" />
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-1">{novel.title}</h1>
+              <p className="mt-2 text-lg text-muted-foreground">
+                por{' '}
+                <Link href={`/?q=${encodeURIComponent(novel.author)}`} className="text-primary hover:underline">
+                  {novel.author}
+                </Link>
+              </p>
+              
+              <ExpandableDescription description={novel.description} className="mt-6" />
 
-            <div className="mt-6">
-                <h3 className="text-lg font-semibold">Etiquetas</h3>
-                <div className="flex flex-wrap gap-2 mt-2">
-                    {novel.tags.map(tag => (
-                        <Link href={`/?q=${encodeURIComponent(tag)}`} key={tag}>
-                          <Badge variant="secondary">{tag}</Badge>
-                        </Link>
-                    ))}
-                </div>
+              <div className="mt-6">
+                  <h3 className="text-lg font-semibold">Etiquetas</h3>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                      {novel.tags.map(tag => (
+                          <Link href={`/?q=${encodeURIComponent(tag)}`} key={tag}>
+                            <Badge variant="secondary">{tag}</Badge>
+                          </Link>
+                      ))}
+                  </div>
+              </div>
+
+              <ChapterList novel={novel} />
+
             </div>
-
-            <ChapterList novel={novel} />
-
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </ThemeProvider>
   );
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
@@ -55,10 +54,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove('light', 'dark', 'sepia');
       root.classList.add(theme);
 
-      const body = window.document.body;
-      body.classList.remove('font-sans', 'font-serif');
-      // We apply font-sans to the body for UI elements, reader view will override it.
-      body.classList.add('font-sans');
+      // La clase de la fuente principal (Inter) se maneja en el layout.
+      // Las fuentes del lector se manejan dinámicamente en `ClientReaderView`.
     }
   }, [theme, isReady]);
 

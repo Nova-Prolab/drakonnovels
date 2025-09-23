@@ -104,12 +104,13 @@ export function ClientReaderView({ novel, chapter, prevChapter, nextChapter }: R
   
   const paragraphs = useMemo(() => displayedContent.split('\n').filter(p => p.trim() !== ''), [displayedContent]);
 
-
-  const fontClass = 
-    font === 'serif' ? 'font-serif' : 
-    font === 'merriweather' ? 'font-merriweather' :
-    font === 'lato' ? 'font-lato' :
-    'font-sans';
+  const fontFamilies: { [key: string]: string } = {
+    sans: 'font-sans',
+    serif: 'font-serif',
+    merriweather: 'font-merriweather',
+    lato: 'font-lato'
+  };
+  const fontClass = fontFamilies[font] || 'font-sans';
   
   if (!isThemeReady) {
     return (
