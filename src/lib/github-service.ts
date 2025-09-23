@@ -6,15 +6,13 @@ const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/Nova-Prolab/novels/mai
 async function fetchFromGithub<T>(path: string): Promise<T | null> {
   try {
     const response = await fetch(`${GITHUB_API_URL}${path}`, {
-        next: { revalidate: 300 } // Revalidate every 5 minutes
+        next: { revalidate: 300 }
     });
     if (!response.ok) {
-      // console.error(`Failed to fetch ${path}: ${response.statusText}`);
       return null;
     }
     return await response.json();
   } catch (error) {
-    // console.error(`Error fetching from github: ${error}`);
     return null;
   }
 }
@@ -22,15 +20,13 @@ async function fetchFromGithub<T>(path: string): Promise<T | null> {
 async function fetchRawContent(path: string): Promise<string | null> {
     try {
         const response = await fetch(`${GITHUB_RAW_URL}${path}`, {
-            next: { revalidate: 300 } // Revalidate every 5 minutes
+            next: { revalidate: 300 }
         });
         if (!response.ok) {
-            // console.error(`Failed to fetch raw content ${path}: ${response.statusText}`);
             return null;
         }
         return await response.text();
     } catch (error) {
-        // console.error(`Error fetching raw content: ${error}`);
         return null;
     }
 }
@@ -104,7 +100,6 @@ export async function getNovelInfo(novelId: string): Promise<NovelInfo | null> {
 export async function getChapters(novelId: string): Promise<Chapter[]> {
     const info = await getNovelInfo(novelId);
 
-    // If info.json has a chapter list, use it for structure.
     if (info?.capitulos && info.capitulos.length > 0) {
         return info.capitulos.map(c => ({
             id: c.id,
@@ -113,7 +108,6 @@ export async function getChapters(novelId: string): Promise<Chapter[]> {
         }));
     }
 
-    // Fallback to scanning directory if info.json doesn't have chapters
     const files = await fetchFromGithub<GithubContent[]>(novelId);
     if (!files) return [];
 
@@ -125,7 +119,6 @@ export async function getChapters(novelId: string): Promise<Chapter[]> {
             return numA - numB;
         });
     
-    // Fetch all chapter titles in parallel to be more efficient
     const chapters = await Promise.all(
         chapterFiles.map(async (file) => {
             const chapterId = parseInt(file.name.match(/(\d+)/)?.[0] || '0', 10);
@@ -156,11 +149,10 @@ export async function getChapterContent(novelId: string, chapterId: number): Pro
     let title = `Capítulo ${chapterId}`;
     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
     if (titleMatch && titleMatch[1]) {
-        title = `Capítulo ${chapterId}: ${titleMatch[1].trim()}`;
+        title = titleMatch[1].trim();
     }
     
-    // Naive approach to strip HTML for plain text display
-    const plainContent = content.replace(/<[^>]+>/g, '\n').replace(/\n\n+/g, '\n\n').trim();
+    const plainContent = content.replace(/<[^>]+>/g, '\\n').replace(/\\n\\n+/g, '\\n\\n').trim();
 
     return {
         id: chapterId,

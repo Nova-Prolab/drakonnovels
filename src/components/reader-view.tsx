@@ -35,12 +35,10 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
 
   const { isRead: isCurrentChapterRead } = getChapterProgress(novel.id, chapter.id);
 
-  // Update that we are on this chapter
   useEffect(() => {
     updateCurrentChapter(novel.id, chapter.id);
   }, [novel.id, chapter.id, updateCurrentChapter]);
 
-  // Reset content and scroll to top when chapter changes
   useEffect(() => {
     setDisplayedContent(chapter.content);
     if(mainRef.current) {
@@ -74,7 +72,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
       <header className="border-b bg-background/80 backdrop-blur-sm flex-shrink-0 z-10">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
-             <Button asChild variant="ghost" size="icon" aria-label="Back to home">
+             <Button asChild variant="ghost" size="icon" aria-label="Volver a inicio">
               <Link href="/">
                 <Home className="h-5 w-5" />
               </Link>
@@ -112,7 +110,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
             />
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Reading settings">
+                <Button variant="ghost" size="icon" aria-label="Ajustes de lectura">
                   <Settings className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
@@ -138,7 +136,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
               <div className="my-8">
                 <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />
               </div>
-              {displayedContent.split('\n').map((paragraph, index) => (
+              {displayedContent.split('\\n').map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>
               ))}
             </div>
@@ -147,29 +145,29 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                 <div className="flex justify-between gap-2">
                   <div className="flex-1 flex justify-start">
                     {prevChapter && (
-                      <Button asChild variant="outline" className="w-full sm:w-auto" title="Previous Chapter">
+                      <Button asChild variant="outline" className="w-full sm:w-auto" title="Capítulo Anterior">
                         <Link onClick={startLoading} href={`/novels/${novel.id}/${prevChapter.id}`}>
                           <ArrowLeft className="h-4 w-4 sm:mr-2" />
-                          <span className="hidden sm:inline">Previous</span>
+                          <span className="hidden sm:inline">Anterior</span>
                         </Link>
                       </Button>
                     )}
                   </div>
                   
                   <div className="flex-none">
-                    <Button asChild variant="secondary" title="All Chapters" className="w-full">
+                    <Button asChild variant="secondary" title="Todos los Capítulos" className="w-full">
                         <Link onClick={startLoading} href={`/novels/${novel.id}/chapters`}>
                             <List className="h-4 w-4 sm:mr-2" />
-                            <span className="hidden sm:inline">All Chapters</span>
+                            <span className="hidden sm:inline">Todos los Capítulos</span>
                         </Link>
                     </Button>
                   </div>
 
                   <div className="flex-1 flex justify-end">
                     {nextChapter && (
-                      <Button asChild variant="outline" className="w-full sm:w-auto" title="Next Chapter">
+                      <Button asChild variant="outline" className="w-full sm:w-auto" title="Capítulo Siguiente">
                         <Link onClick={startLoading} href={`/novels/${novel.id}/${nextChapter.id}`}>
-                          <span className="hidden sm:inline">Next</span>
+                          <span className="hidden sm:inline">Siguiente</span>
                           <ArrowRight className="h-4 w-4 sm:ml-2" />
                         </Link>
                       </Button>

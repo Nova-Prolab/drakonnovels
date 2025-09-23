@@ -10,6 +10,7 @@ import { ExpandableDescription } from './_components/expandable-description';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { CalendarDays } from 'lucide-react';
+import { es } from 'date-fns/locale';
 
 type NovelDetailsPageProps = {
   params: {
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: NovelDetailsPageProps): Promi
 
   if (!novel) {
     return {
-      title: 'Novel Not Found',
+      title: 'Novela no encontrada',
     };
   }
 
@@ -60,7 +61,7 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
                     <CalendarDays className="mr-2 h-4 w-4" />
                     <Link href={`/?q=${encodeURIComponent(novel.releaseDate)}`} className="hover:underline">
                       <span>
-                          Updated on {format(new Date(novel.releaseDate), 'MMM d, yyyy')}
+                          Actualizado el {format(new Date(novel.releaseDate), 'd MMM, yyyy', { locale: es })}
                       </span>
                     </Link>
                 </div>
@@ -76,7 +77,7 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
             </Link>
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-1">{novel.title}</h1>
             <p className="mt-2 text-lg text-muted-foreground">
-              by{' '}
+              por{' '}
               <Link href={`/?q=${encodeURIComponent(novel.author)}`} className="text-primary hover:underline">
                 {novel.author}
               </Link>
@@ -85,7 +86,7 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
             <ExpandableDescription description={novel.description} className="mt-6" />
 
             <div className="mt-6">
-                <h3 className="text-lg font-semibold">Tags</h3>
+                <h3 className="text-lg font-semibold">Etiquetas</h3>
                 <div className="flex flex-wrap gap-2 mt-2">
                     {novel.tags.map(tag => (
                         <Link href={`/?q=${encodeURIComponent(tag)}`} key={tag}>

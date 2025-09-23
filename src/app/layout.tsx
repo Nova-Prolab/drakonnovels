@@ -15,7 +15,7 @@ const lato = Lato({ subsets: ['latin'], weight: ['400', '700'], variable: '--fon
 
 export const metadata: Metadata = {
   title: 'DrakonInk',
-  description: 'Your portal to infinite stories.',
+  description: 'Tu portal a historias infinitas.',
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

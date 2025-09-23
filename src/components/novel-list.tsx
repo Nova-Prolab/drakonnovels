@@ -23,11 +23,11 @@ export function NovelList({ novels, searchTerm, canLoadMore = false, onLoadMore,
     return (
       <div className="flex flex-col items-center justify-center text-center py-16 px-4">
         <Search className="w-16 h-16 text-muted-foreground mb-4"/>
-        <h3 className="text-xl font-semibold">No Novels Found</h3>
+        <h3 className="text-xl font-semibold">No se encontraron novelas</h3>
         <p className="text-muted-foreground mt-2">
             {isSearching
-                ? `No results found for "${searchTerm}". Try adjusting your filters.`
-                : "No novels match the current criteria."
+                ? `No se encontraron resultados para "${searchTerm}". Prueba ajustando tus filtros.`
+                : "No hay novelas que coincidan con los criterios actuales."
             }
         </p>
       </div>
@@ -47,7 +47,7 @@ export function NovelList({ novels, searchTerm, canLoadMore = false, onLoadMore,
             {isLoadingMore ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
-            Load More
+            Cargar Más
           </Button>
         </div>
       )}

@@ -16,6 +16,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 
 export function FeaturedCarousel({ novels }: { novels: Novel[] }) {
   const plugin = React.useRef(
@@ -92,9 +93,11 @@ export function FeaturedCarousel({ novels }: { novels: Novel[] }) {
                                 ))}
                             </div>
                             <div className="mt-6">
-                                <Link href={`/novels/${novel.id}`} className="inline-block px-8 py-3 rounded-md bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-primary/30">
-                                    Start Reading
-                                </Link>
+                                <Button asChild size="lg">
+                                    <Link href={`/novels/${novel.id}`} className="inline-block rounded-md font-semibold transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-primary/30">
+                                        Empezar a Leer
+                                    </Link>
+                                </Button>
                             </div>
                         </div>
                     </div>

@@ -20,36 +20,37 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Label } from './ui/label';
 
 const languages = [
-    { code: "es", name: "Spanish" },
-    { code: "fr", name: "French" },
-    { code: "de", name: "German" },
-    { code: "it", name: "Italian" },
-    { code: "pt", name: "Portuguese" },
-    { code: "nl", name: "Dutch" },
-    { code: "ru", name: "Russian" },
-    { code: "zh-CN", name: "Chinese (Simplified)" },
-    { code: "ja", name: "Japanese" },
-    { code: "ko", name: "Korean" },
-    { code: "ar", name: "Arabic" },
+    { code: "en", name: "Inglés" },
+    { code: "es", name: "Español" },
+    { code: "fr", name: "Francés" },
+    { code: "de", name: "Alemán" },
+    { code: "it", name: "Italiano" },
+    { code: "pt", name: "Portugués" },
+    { code: "nl", name: "Holandés" },
+    { code: "ru", name: "Ruso" },
+    { code: "zh-CN", name: "Chino (Simplificado)" },
+    { code: "ja", name: "Japonés" },
+    { code: "ko", name: "Coreano" },
+    { code: "ar", name: "Árabe" },
     { code: "hi", name: "Hindi" },
-    { code: "bn", name: "Bengali" },
-    { code: "pa", name: "Punjabi" },
-    { code: "jv", name: "Javanese" },
-    { code: "ms", name: "Malay" },
-    { code: "vi", name: "Vietnamese" },
-    { code: "th", name: "Thai" },
-    { code: "tr", name: "Turkish" },
-    { code: "pl", name: "Polish" },
-    { code: "ro", name: "Romanian" },
-    { code: "sv", name: "Swedish" },
-    { code: "fi", name: "Finnish" },
-    { code: "no", name: "Norwegian" },
-    { code: "da", name: "Danish" },
-    { code: "el", name: "Greek" },
-    { code: "he", name: "Hebrew" },
-    { code: "id", name: "Indonesian" },
-    { code: "uk", name: "Ukrainian" },
-    { code: "hu", name: "Hungarian" },
+    { code: "bn", name: "Bengalí" },
+    { code: "pa", name: "Panyabí" },
+    { code: "jv", name: "Javanés" },
+    { code: "ms", name: "Malayo" },
+    { code: "vi", name: "Vietnamita" },
+    { code: "th", name: "Tailandés" },
+    { code: "tr", name: "Turco" },
+    { code: "pl", name: "Polaco" },
+    { code: "ro", name: "Rumano" },
+    { code: "sv", name: "Sueco" },
+    { code: "fi", name: "Finlandés" },
+    { code: "no", name: "Noruego" },
+    { code: "da", name: "Danés" },
+    { code: "el", name: "Griego" },
+    { code: "he", name: "Hebreo" },
+    { code: "id", name: "Indonesio" },
+    { code: "uk", name: "Ucraniano" },
+    { code: "hu", name: "Húngaro" },
 ];
 
 
@@ -67,7 +68,7 @@ export function ChapterTranslator({ chapterText, onContentChange, isTranslated }
 
   const handleTranslate = async () => {
     if (!selectedLanguage) {
-      setError('Please select a language.');
+      setError('Por favor, selecciona un idioma.');
       return;
     }
     setIsLoading(true);
@@ -80,7 +81,7 @@ export function ChapterTranslator({ chapterText, onContentChange, isTranslated }
       onContentChange(result.translatedText);
       setIsOpen(false);
     } else {
-      setError(result.error || 'An unknown error occurred.');
+      setError(result.error || 'Ocurrió un error desconocido.');
     }
   };
 
@@ -94,31 +95,31 @@ export function ChapterTranslator({ chapterText, onContentChange, isTranslated }
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Translate chapter">
+        <Button variant="ghost" size="icon" aria-label="Traducir capítulo">
           <Languages className="h-5 w-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="grid gap-4">
           <div className="space-y-2">
-            <h4 className="font-medium leading-none">Translate Chapter</h4>
+            <h4 className="font-medium leading-none">Traducir Capítulo</h4>
             <p className="text-sm text-muted-foreground">
-              Select a language to translate the chapter.
+              Selecciona un idioma para traducir el capítulo.
             </p>
           </div>
 
           {isTranslated ? (
             <Button onClick={showOriginal} variant="outline">
                 <RefreshCcw className="mr-2 h-4 w-4" />
-                Show Original Text
+                Mostrar Texto Original
             </Button>
           ) : (
             <div className="grid gap-2">
                 <div className="grid grid-cols-3 items-center gap-4">
-                    <Label htmlFor="language" className="col-span-1">Language</Label>
+                    <Label htmlFor="language" className="col-span-1">Idioma</Label>
                     <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                         <SelectTrigger id="language" className="col-span-2 h-8">
-                            <SelectValue placeholder="Select" />
+                            <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
                         <SelectContent>
                             {languages.map(lang => (
@@ -131,7 +132,7 @@ export function ChapterTranslator({ chapterText, onContentChange, isTranslated }
                 </div>
                  <Button onClick={handleTranslate} disabled={isLoading || !selectedLanguage}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Languages className="mr-2 h-4 w-4" />}
-                    Translate
+                    Traducir
                 </Button>
             </div>
           )}

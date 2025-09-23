@@ -9,7 +9,6 @@ import { CheckCircle2, Circle, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useLoading } from "@/components/loading-provider";
 
 type ChapterListProps = {
     novel: Novel;
@@ -20,7 +19,6 @@ const CHAPTERS_TO_SHOW = 5;
 
 export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListProps) {
     const { getChapterProgress, isReady, progress } = useReadingProgress();
-    const { startLoading } = useLoading();
     const [showAll, setShowAll] = useState(false);
 
     const novelProgress = progress[novel.id];
@@ -38,8 +36,8 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
     return (
         <div className="mt-8">
             <div className="flex justify-between items-center mb-3">
-                <h3 className="text-xl font-semibold">Chapters</h3>
-                {isReady && <span className="text-sm text-muted-foreground">{readChaptersCount} / {totalChapters} Read</span>}
+                <h3 className="text-xl font-semibold">Capítulos</h3>
+                {isReady && <span className="text-sm text-muted-foreground">{readChaptersCount} / {totalChapters} Leídos</span>}
             </div>
             
             {isReady && <Progress value={progressPercentage} className="mb-4 h-2" />}
@@ -52,7 +50,7 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
 
                         return (
                             <li key={chapter.id}>
-                                <Link onClick={startLoading} href={`/novels/${novel.id}/${chapter.id}`} className="block p-4 hover:bg-accent transition-colors">
+                                <Link href={`/novels/${novel.id}/${chapter.id}`} className="block p-4 hover:bg-accent transition-colors">
                                     <div className="flex items-center gap-4">
                                         {isReady ? (
                                              <div className="flex items-center justify-center h-6 w-6">
@@ -81,13 +79,13 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
             {canShowMore && (
                 <div className="mt-4 flex items-center gap-2">
                     <Button variant="outline" onClick={() => setShowAll(!showAll)} className="flex-1">
-                        {showAll ? 'Show Less' : `Show All ${totalChapters} Chapters`}
+                        {showAll ? 'Mostrar Menos' : `Mostrar los ${totalChapters} Capítulos`}
                     </Button>
                     {showAllChaptersLink && (
                         <Button asChild variant="ghost" size="icon">
-                             <Link onClick={startLoading} href={`/novels/${novel.id}/chapters`}>
+                             <Link href={`/novels/${novel.id}/chapters`}>
                                 <List className="h-5 w-5" />
-                                <span className="sr-only">Go to chapters page</span>
+                                <span className="sr-only">Ir a la página de capítulos</span>
                             </Link>
                         </Button>
                     )}

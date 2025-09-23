@@ -10,7 +10,7 @@ export async function getChapterSummary(input: SummarizeChapterInput) {
     return { summary: result.summary, error: null };
   } catch (error) {
     console.error("Error generating summary:", error);
-    return { summary: null, error: 'Failed to generate summary. Please try again later.' };
+    return { summary: null, error: 'No se pudo generar el resumen. Por favor, inténtalo de nuevo más tarde.' };
   }
 }
 
@@ -20,6 +20,6 @@ export async function getChapterTranslation(chapterText: string, language: strin
     return { translatedText: result.translatedText, error: null };
   } catch (error) {
     console.error("Error generating translation:", error);
-    return { translatedText: null, error: 'Failed to generate translation. Please try again later.' };
+    return { translatedText: null, error: 'No se pudo generar la traducción. Por favor, inténtalo de nuevo más tarde.' };
   }
 }

@@ -40,7 +40,7 @@ export function ExpandableDescription({ description, className }: ExpandableDesc
             {isLongDescription && (
                 <div className="mt-2">
                     <Button variant="link" onClick={toggleExpansion} className="px-0">
-                        {isExpanded ? 'Show Less' : 'Show More'}
+                        {isExpanded ? 'Mostrar Menos' : 'Mostrar Más'}
                         {isExpanded ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
                     </Button>
                 </div>

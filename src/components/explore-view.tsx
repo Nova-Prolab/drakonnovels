@@ -172,7 +172,7 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                 <div className="relative w-full md:max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input 
-                    placeholder="Search by title, author, or tag..." 
+                    placeholder="Buscar por título, autor, o etiqueta..." 
                     className="pl-10"
                     value={searchTerm}
                     onChange={handleSearchChange}
@@ -184,9 +184,9 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                 )}
                 </div>
                 <TabsList>
-                <TabsTrigger value="all">All Novels</TabsTrigger>
-                <TabsTrigger value="explore">Explore</TabsTrigger>
-                <TabsTrigger value="library" disabled={!isReady}>My Library</TabsTrigger>
+                <TabsTrigger value="all">Todas las Novelas</TabsTrigger>
+                <TabsTrigger value="explore">Explorar</TabsTrigger>
+                <TabsTrigger value="library" disabled={!isReady}>Mi Biblioteca</TabsTrigger>
                 </TabsList>
             </div>
             
@@ -201,12 +201,12 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                   {isSearching && (
                       <div className="flex items-center justify-between border-b pb-4 mb-8">
                       <div>
-                          <h2 className="text-2xl font-semibold tracking-tight">Search Results</h2>
-                          <p className="text-muted-foreground">Found {filteredNovelsSource.length} results for &quot;{searchTerm}&quot;</p>
+                          <h2 className="text-2xl font-semibold tracking-tight">Resultados de Búsqueda</h2>
+                          <p className="text-muted-foreground">Se encontraron {filteredNovelsSource.length} resultados para &quot;{searchTerm}&quot;</p>
                       </div>
                       </div>
                   )}
-                  <h2 className="text-2xl font-bold tracking-tight mb-4">All Novels</h2>
+                  <h2 className="text-2xl font-bold tracking-tight mb-4">Todas las Novelas</h2>
                   <NovelList 
                     novels={paginatedNovels} 
                     searchTerm={searchTerm}
@@ -221,7 +221,7 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                 <CollapsibleTrigger asChild>
                     <Button variant="outline" className="w-full md:w-auto">
                     <Filter className="mr-2 h-4 w-4" />
-                    <span>Filters</span>
+                    <span>Filtros</span>
                     <ChevronDown className="ml-2 h-4 w-4 transition-transform data-[state=open]:rotate-180" />
                     </Button>
                 </CollapsibleTrigger>
@@ -230,38 +230,38 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                         <CardContent className="p-4 space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-sm font-medium">Category</label>
+                                    <label className="text-sm font-medium">Categoría</label>
                                     <Select value={categoryFilter} onValueChange={value => setCategoryFilter(value === 'all' ? '' : value)}>
-                                        <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
+                                        <SelectTrigger><SelectValue placeholder="Todas las Categorías" /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All Categories</SelectItem>
+                                            <SelectItem value="all">Todas las Categorías</SelectItem>
                                             {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-sm font-medium">Status</label>
+                                    <label className="text-sm font-medium">Estado</label>
                                     <Select value={statusFilter} onValueChange={value => setStatusFilter(value === 'all' ? '' : value)}>
-                                        <SelectTrigger><SelectValue placeholder="All Statuses" /></SelectTrigger>
+                                        <SelectTrigger><SelectValue placeholder="Todos los Estados" /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All Statuses</SelectItem>
+                                            <SelectItem value="all">Todos los Estados</SelectItem>
                                             {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-sm font-medium">Age Rating</label>
+                                    <label className="text-sm font-medium">Clasificación de Edad</label>
                                     <Select value={ageRatingFilter} onValueChange={value => setAgeRatingFilter(value === 'all' ? '' : value)}>
-                                        <SelectTrigger><SelectValue placeholder="All Ages" /></SelectTrigger>
+                                        <SelectTrigger><SelectValue placeholder="Todas las Edades" /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All Ages</SelectItem>
+                                            <SelectItem value="all">Todas las Edades</SelectItem>
                                             {ageRatings.map(r => <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Tags</label>
+                                <label className="text-sm font-medium">Etiquetas</label>
                                 <div className="flex flex-wrap gap-2">
                                     {allTags.map(tag => (
                                         <Badge 
@@ -278,7 +278,7 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                             <div className="flex justify-end">
                                 <Button variant="ghost" onClick={resetFilters}>
                                     <X className="mr-2 h-4 w-4" />
-                                    Reset Filters
+                                    Restablecer Filtros
                                 </Button>
                             </div>
                         </CardContent>

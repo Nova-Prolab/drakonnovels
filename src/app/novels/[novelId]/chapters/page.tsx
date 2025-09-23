@@ -18,13 +18,13 @@ export async function generateMetadata({ params }: ChaptersPageProps): Promise<M
   
     if (!novel) {
       return {
-        title: 'Novel Not Found',
+        title: 'Novela no encontrada',
       };
     }
   
     return {
-      title: `Chapters for ${novel.title} | DrakonInk`,
-      description: `Browse all chapters for the novel ${novel.title}.`,
+      title: `Capítulos de ${novel.title} | DrakonInk`,
+      description: `Explora todos los capítulos de la novela ${novel.title}.`,
     };
 }
   
@@ -45,11 +45,11 @@ export default async function ChaptersPage({ params }: ChaptersPageProps) {
                         <Button asChild variant="ghost">
                             <Link href={`/novels/${novel.id}`} className="inline-flex items-center gap-2">
                                 <ArrowLeft className="h-4 w-4" />
-                                <span>Back to Novel Details</span>
+                                <span>Volver a los detalles de la novela</span>
                             </Link>
                         </Button>
                         <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-2">{novel.title}</h1>
-                        <p className="mt-2 text-lg text-muted-foreground">All Chapters</p>
+                        <p className="mt-2 text-lg text-muted-foreground">Todos los capítulos</p>
                     </div>
 
                     <ChapterList novel={novel} showAllChaptersLink={false}/>

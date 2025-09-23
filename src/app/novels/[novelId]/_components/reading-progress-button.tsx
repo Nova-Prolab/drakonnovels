@@ -18,13 +18,13 @@ export function ReadingProgressButton({ novelId, chapters }: ReadingProgressButt
     const startChapter = chapters[0]?.id ?? 1;
 
     const href = `/novels/${novelId}/${novelProgress?.chapterId ?? startChapter}`;
-    const text = novelProgress ? 'Continue Reading' : 'Start Reading';
+    const text = novelProgress ? 'Continuar Leyendo' : 'Empezar a Leer';
 
     if (!isReady) {
         return (
              <Button size="lg" className="w-full" disabled>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Loading...
+                Cargando...
             </Button>
         )
     }

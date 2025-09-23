@@ -28,7 +28,7 @@ export function ChapterSummary({ novelTitle, chapterNumber, chapterText }: Chapt
       setSummary(result.summary);
       setIsGenerated(true);
     } else {
-      setError(result.error || 'An unknown error occurred.');
+      setError(result.error || 'Ocurrió un error desconocido.');
     }
   };
 
@@ -38,16 +38,16 @@ export function ChapterSummary({ novelTitle, chapterNumber, chapterText }: Chapt
         <AccordionTrigger className="hover:no-underline">
           <div className="flex items-center gap-2 font-semibold">
             <Sparkles className="h-5 w-5 text-amber-500" />
-            <span>AI Chapter Summary</span>
+            <span>Resumen del Capítulo con IA</span>
           </div>
         </AccordionTrigger>
         <AccordionContent className="pt-4 space-y-4">
           {!isGenerated && !isLoading && (
             <div className="flex flex-col items-center justify-center space-y-4 text-center p-4 border rounded-lg bg-card text-card-foreground">
-                <p className="text-sm text-muted-foreground">Get a quick summary of this chapter.</p>
+                <p className="text-sm text-muted-foreground">Obtén un resumen rápido de este capítulo.</p>
                 <Button onClick={handleSummarize}>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Generate Summary
+                    Generar Resumen
                 </Button>
             </div>
           )}

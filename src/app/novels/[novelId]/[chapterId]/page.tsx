@@ -17,14 +17,14 @@ export async function generateMetadata({ params }: ReaderPageProps): Promise<Met
 
   if (!novel || !chapter) {
     return {
-      title: 'Not Found',
-      description: 'The requested chapter was not found.',
+      title: 'No encontrado',
+      description: 'El capítulo solicitado no fue encontrado.',
     };
   }
 
   return {
     title: `${novel.title} - ${chapter.title} | DrakonInk`,
-    description: `Read ${chapter.title} of ${novel.title}.`,
+    description: `Lee ${chapter.title} de ${novel.title}.`,
   };
 }
 

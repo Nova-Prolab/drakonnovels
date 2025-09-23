@@ -11,7 +11,6 @@ import { Bookmark, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Badge } from './ui/badge';
-import { useLoading } from './loading-provider';
 
 type NovelCardProps = {
   novel: Novel;
@@ -35,11 +34,8 @@ const getAgeRatingColor = (ageRating?: string) => {
 export function NovelCard({ novel, isCarouselItem = false }: NovelCardProps) {
   const { library, addToLibrary, removeFromLibrary } = useLibrary();
   const { progress } = useReadingProgress();
-  const { startLoading } = useLoading();
 
   const isSaved = library.includes(novel.id);
-  const novelProgress = progress[novel.id];
-  const startChapter = novel.chapters[0]?.id ?? 1;
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,7 +51,7 @@ export function NovelCard({ novel, isCarouselItem = false }: NovelCardProps) {
     <TooltipProvider delayDuration={300}>
       <div className={cn("relative group transition-transform duration-500 ease-in-out", !isCarouselItem && "hover:[transform:rotateY(10deg)_rotateX(5deg)_scale(1.05)]")} style={{ perspective: '1000px' }}>
         <Card className="overflow-hidden transition-all duration-300 ease-in-out group-hover:shadow-xl">
-          <Link href={`/novels/${novel.id}`} onClick={startLoading}>
+          <Link href={`/novels/${novel.id}`}>
               <CardContent className="p-0">
                 <div className="aspect-[2/3] relative">
                   <Image
@@ -95,12 +91,6 @@ export function NovelCard({ novel, isCarouselItem = false }: NovelCardProps) {
           <p className="text-xs text-muted-foreground truncate" title={novel.author}>
             {novel.author}
           </p>
-          <Button asChild size="sm" className="w-full mt-2">
-            <Link href={`/novels/${novel.id}/${novelProgress?.chapterId ?? startChapter}`} onClick={startLoading}>
-              <BookOpen className="mr-2 h-4 w-4" />
-              {novelProgress ? 'Continue Reading' : 'Start Reading'}
-            </Link>
-          </Button>
         </div>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -109,13 +99,13 @@ export function NovelCard({ novel, isCarouselItem = false }: NovelCardProps) {
               size="icon"
               className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={handleBookmarkClick}
-              aria-label={isSaved ? 'Remove from library' : 'Save to library'}
+              aria-label={isSaved ? 'Quitar de la biblioteca' : 'Guardar en la biblioteca'}
             >
               <Bookmark className={cn("h-4 w-4", isSaved ? "fill-primary text-primary" : "text-foreground")} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{isSaved ? 'Remove from library' : 'Save to library'}</p>
+            <p>{isSaved ? 'Quitar de la biblioteca' : 'Guardar en la biblioteca'}</p>
           </TooltipContent>
         </Tooltip>
       </div>
