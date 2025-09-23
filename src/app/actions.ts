@@ -2,6 +2,7 @@
 
 import { summarizeChapter } from '@/ai/flows/chapter-summary';
 import type { SummarizeChapterInput } from '@/ai/flows/chapter-summary';
+import { translateChapter } from '@/ai/flows/translate-chapter-flow';
 
 export async function getChapterSummary(input: SummarizeChapterInput) {
   try {
@@ -10,5 +11,15 @@ export async function getChapterSummary(input: SummarizeChapterInput) {
   } catch (error) {
     console.error("Error generating summary:", error);
     return { summary: null, error: 'Failed to generate summary. Please try again later.' };
+  }
+}
+
+export async function getChapterTranslation(chapterText: string, language: string) {
+  try {
+    const result = await translateChapter({ chapterText, language });
+    return { translatedText: result.translatedText, error: null };
+  } catch (error) {
+    console.error("Error generating translation:", error);
+    return { translatedText: null, error: 'Failed to generate translation. Please try again later.' };
   }
 }

@@ -4,7 +4,7 @@ import type { Novel, Chapter } from '@/lib/types';
 import { useTheme } from './theme-provider';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { ArrowLeft, ArrowRight, Home, Settings } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Home, Settings, Languages } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
@@ -12,6 +12,7 @@ import { useReadingProgress } from '@/lib/hooks';
 import { useEffect, useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
+import { ChapterTranslator } from './chapter-translator';
 
 type ReaderViewProps = {
   novel: Novel;
@@ -70,16 +71,19 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
               </div>
             </div>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Reading settings">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64" align="end">
-              <ReaderSettings />
-            </PopoverContent>
-          </Popover>
+          <div className="flex items-center">
+            <ChapterTranslator chapterText={chapter.content} />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Reading settings">
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64" align="end">
+                <ReaderSettings />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </header>
 
