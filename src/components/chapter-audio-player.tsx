@@ -3,12 +3,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from './ui/button';
-import { Volume2, Play, Pause, Square } from 'lucide-react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Play, Pause, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type ChapterAudioPlayerProps = {
@@ -35,6 +30,8 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
   
   useEffect(() => {
     paragraphsRef.current = chapterText.split('\\n').filter(p => p.trim() !== '');
+    
+    // Clean up when the component unmounts or the chapter changes
     return () => {
       cleanUpSpeech();
     };
@@ -61,7 +58,7 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
       console.error("SpeechSynthesis Error:", event);
       toast({
           title: "Error de Audio",
-          description: "No se pudo reproducir el audio. Por favor, inténtalo de nuevo.",
+          description: "No se pudo reproducir el audio. Tu navegador puede no ser compatible o el texto es demasiado largo.",
           variant: "destructive",
       });
       cleanUpSpeech();
@@ -80,7 +77,11 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
         return;
     }
     
-    cleanUpSpeech();
+    // Ensure everything is stopped before starting fresh
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+    currentParagraphIndexRef.current = 0;
     speakParagraph(0);
   };
   
@@ -100,65 +101,48 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     cleanUpSpeech();
   };
 
-  const getPlayButton = () => {
+  const handleMainButtonClick = () => {
     switch(speechState) {
         case 'idle':
-            return (
-                <Button onClick={handlePlay} size="lg" className="w-full">
-                    <Play className="mr-2" />
-                    Reproducir Audio
-                </Button>
-            );
+            handlePlay();
+            break;
         case 'playing':
-            return (
-                <Button onClick={handlePause} size="lg" className="w-full" variant="outline">
-                    <Pause className="mr-2" />
-                    Pausar
-                </Button>
-            );
+            handlePause();
+            break;
         case 'paused':
-            return (
-                <Button onClick={handleResume} size="lg" className="w-full">
-                    <Play className="mr-2" />
-                    Reanudar
-                </Button>
-            );
+            handleResume();
+            break;
     }
+  };
+  
+  const getIcon = () => {
+    if (speechState === 'playing') {
+      return <Pause className="h-5 w-5" />;
+    }
+    return <Play className="h-5 w-5" />;
   }
 
-
   return (
-    <div>
-      <Popover onOpenChange={(open) => {
-        if (!open) {
-          handleStop();
-        }
-      }}>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Escuchar capítulo">
-            <Volume2 className="h-5 w-5" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="end" className="w-60">
-          <div className="flex flex-col gap-4 items-center">
-            <h4 className="font-medium leading-none">Reproductor de Audio</h4>
-
-            <div className="w-full space-y-2">
-              {getPlayButton()}
-              {speechState !== 'idle' && (
-                <Button onClick={handleStop} size="lg" className="w-full" variant="destructive">
-                    <Square className="mr-2" />
-                    Detener
-                </Button>
-              )}
-            </div>
-            
-            <p className="text-xs text-muted-foreground text-center">
-              Utiliza la función de texto a voz de tu navegador.
-            </p>
-          </div>
-        </PopoverContent>
-      </Popover>
+    <div className="flex items-center gap-1">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={handleMainButtonClick}
+        aria-label={speechState === 'playing' ? 'Pausar audio' : 'Reproducir audio'}
+      >
+        {getIcon()}
+      </Button>
+      {speechState !== 'idle' && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleStop}
+          aria-label="Detener audio"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <Square className="h-5 w-5" />
+        </Button>
+      )}
     </div>
   );
 }
