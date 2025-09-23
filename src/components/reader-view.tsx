@@ -22,7 +22,7 @@ type ReaderViewProps = {
 };
 
 export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextChapter }: ReaderViewProps) {
-  const { fontSize } = useTheme();
+  const { fontSize, font } = useTheme();
   const { updateProgress } = useReadingProgress();
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -44,11 +44,11 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
   }, [novel.id, chapter.id, updateProgress]);
 
   return (
-    <div className={cn("bg-background text-foreground font-serif")}>
+    <div className={cn("bg-background text-foreground", font === 'serif' ? 'font-serif' : 'font-sans')}>
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
-            <Button asChild variant="ghost" size="icon" aria-label="Back to library">
+             <Button asChild variant="ghost" size="icon" aria-label="Back to library">
               <Link href="/">
                 <Home className="h-5 w-5" />
               </Link>

@@ -74,7 +74,7 @@ export default function NovelDetailsPage({ params }: NovelDetailsPageProps) {
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-1">{novel.title}</h1>
             <p className="mt-2 text-lg text-muted-foreground">by {novel.author}</p>
             
-            <div className="mt-6 prose prose-lg dark:prose-invert max-w-none">
+            <div className="mt-6 prose prose-lg dark:prose-invert max-w-none font-sans">
                 <p>{novel.description}</p>
             </div>
 
