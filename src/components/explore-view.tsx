@@ -177,30 +177,30 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Category</label>
-                            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                            <Select value={categoryFilter} onValueChange={value => setCategoryFilter(value === 'all' ? '' : value)}>
                                 <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Categories</SelectItem>
+                                    <SelectItem value="all">All Categories</SelectItem>
                                     {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
                          <div className="space-y-1">
                             <label className="text-sm font-medium">Status</label>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                             <Select value={statusFilter} onValueChange={value => setStatusFilter(value === 'all' ? '' : value)}>
                                 <SelectTrigger><SelectValue placeholder="All Statuses" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Statuses</SelectItem>
+                                    <SelectItem value="all">All Statuses</SelectItem>
                                     {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
                          <div className="space-y-1">
                             <label className="text-sm font-medium">Age Rating</label>
-                            <Select value={ageRatingFilter} onValueChange={setAgeRatingFilter}>
+                            <Select value={ageRatingFilter} onValueChange={value => setAgeRatingFilter(value === 'all' ? '' : value)}>
                                 <SelectTrigger><SelectValue placeholder="All Ages" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Ages</SelectItem>
+                                    <SelectItem value="all">All Ages</SelectItem>
                                     {ageRatings.map(r => <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>)}
                                 </SelectContent>
                             </Select>
