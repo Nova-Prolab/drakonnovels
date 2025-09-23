@@ -61,7 +61,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
 
   return (
     <div className={cn("bg-background text-foreground", isThemeReady ? fontClass : 'font-sans')}>
-      <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
+      <header className="border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
              <Button asChild variant="ghost" size="icon" aria-label="Back to home">
@@ -101,8 +101,8 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
         </div>
       </header>
 
-      <div className="flex flex-col min-h-[calc(100vh-4rem)]">
-        <main ref={contentRef} className="flex-1 overflow-y-auto">
+      <div className="flex flex-col">
+        <main ref={contentRef} className="flex-1">
           <div className="container mx-auto max-w-3xl px-4 py-8 md:py-12">
             <div className="prose prose-lg dark:prose-invert" style={{ fontSize: `${fontSize}rem` }}>
               <h1>{chapter.title}</h1>
