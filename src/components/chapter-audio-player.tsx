@@ -19,25 +19,56 @@ type SpeechState = "idle" | "playing" | "paused";
 
 export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
   const [speechState, setSpeechState] = useState<SpeechState>("idle");
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const paragraphsRef = useRef<string[]>([]);
+  const currentParagraphIndexRef = useRef<number>(0);
   const { toast } = useToast();
 
   const cleanUpSpeech = useCallback(() => {
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.cancel();
-        }
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
       }
-      setSpeechState("idle");
+    }
+    currentParagraphIndexRef.current = 0;
+    setSpeechState("idle");
   }, []);
   
-  // This effect ensures cleanup when the component unmounts or the popover closes.
   useEffect(() => {
+    paragraphsRef.current = chapterText.split('\\n').filter(p => p.trim() !== '');
     return () => {
       cleanUpSpeech();
     };
-  }, [cleanUpSpeech]);
+  }, [chapterText, cleanUpSpeech]);
 
+  const speakParagraph = (index: number) => {
+    if (index >= paragraphsRef.current.length || typeof window === "undefined" || !window.speechSynthesis) {
+      cleanUpSpeech();
+      return;
+    }
+
+    const paragraph = paragraphsRef.current[index];
+    const utterance = new SpeechSynthesisUtterance(paragraph);
+    utterance.lang = "es-ES";
+
+    utterance.onstart = () => setSpeechState("playing");
+    utterance.onpause = () => setSpeechState("paused");
+    utterance.onresume = () => setSpeechState("playing");
+    utterance.onend = () => {
+      currentParagraphIndexRef.current += 1;
+      speakParagraph(currentParagraphIndexRef.current);
+    };
+    utterance.onerror = (event) => {
+      console.error("SpeechSynthesis Error:", event);
+      toast({
+          title: "Error de Audio",
+          description: "No se pudo reproducir el audio. Por favor, inténtalo de nuevo.",
+          variant: "destructive",
+      });
+      cleanUpSpeech();
+    };
+    
+    window.speechSynthesis.speak(utterance);
+  };
 
   const handlePlay = () => {
     if (typeof window === "undefined" || !window.speechSynthesis) {
@@ -49,30 +80,8 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
         return;
     }
     
-    // Cleanup any previous utterance
-    if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-    }
-
-    const utterance = new SpeechSynthesisUtterance(chapterText);
-    utterance.lang = "es-ES";
-
-    utterance.onstart = () => setSpeechState("playing");
-    utterance.onpause = () => setSpeechState("paused");
-    utterance.onresume = () => setSpeechState("playing");
-    utterance.onend = () => setSpeechState("idle");
-    utterance.onerror = (event) => {
-        console.error("SpeechSynthesis Error:", event);
-        toast({
-            title: "Error de Audio",
-            description: "No se pudo reproducir el audio. Por favor, inténtalo de nuevo.",
-            variant: "destructive",
-        });
-        setSpeechState("idle");
-    };
-    
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
+    cleanUpSpeech();
+    speakParagraph(0);
   };
   
   const handlePause = () => {
