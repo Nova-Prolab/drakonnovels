@@ -62,9 +62,7 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-1">{novel.title}</h1>
             <p className="mt-2 text-lg text-muted-foreground">by {novel.author}</p>
             
-            <div className="mt-4">
-              <ExpandableDescription description={novel.description} />
-            </div>
+            <ExpandableDescription description={novel.description} className="mt-4" />
 
             <div className="mt-6">
                 <h3 className="text-lg font-semibold">Tags</h3>

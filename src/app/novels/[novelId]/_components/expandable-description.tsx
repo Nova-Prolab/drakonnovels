@@ -7,11 +7,12 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 type ExpandableDescriptionProps = {
     description: string;
+    className?: string;
 };
 
 const MAX_LINES = 8; 
 
-export function ExpandableDescription({ description }: ExpandableDescriptionProps) {
+export function ExpandableDescription({ description, className }: ExpandableDescriptionProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const toggleExpansion = () => {
@@ -22,7 +23,7 @@ export function ExpandableDescription({ description }: ExpandableDescriptionProp
     const isLongDescription = descriptionLines.length > MAX_LINES;
 
     return (
-        <div>
+        <div className={className}>
             <div
                 className={cn(
                     "prose prose-lg dark:prose-invert max-w-none font-sans relative overflow-hidden transition-all duration-500 ease-in-out",
