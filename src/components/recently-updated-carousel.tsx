@@ -39,7 +39,7 @@ export function RecentlyUpdatedCarousel({ novels }: { novels: Novel[] }) {
       >
         <CarouselContent className="-ml-4">
           {novels.map((novel, index) => (
-            <CarouselItem key={index} className="pl-4 md:basis-1/3 lg:basis-1/5">
+            <CarouselItem key={index} className="pl-4 basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
               <div className="p-1">
                 <NovelCard novel={novel} />
               </div>

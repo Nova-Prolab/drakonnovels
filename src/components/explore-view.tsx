@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { FeaturedCarousel } from './featured-carousel';
+import { RecentlyUpdatedCarousel } from './recently-updated-carousel';
 
 type ExploreViewProps = {
   novels: Novel[];
@@ -33,7 +35,7 @@ const getUniqueValues = (novels: Novel[], key: keyof Novel) => {
 
 export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-  const [activeTab, setActiveTab] = useState(initialSearchTerm ? 'all' : 'explore');
+  const [activeTab, setActiveTab] = useState(initialSearchTerm ? 'all' : 'all');
   const { library, isReady } = useLibrary();
   
   const searchParams = useSearchParams();
@@ -52,6 +54,21 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
   const allTags = useMemo(() => getUniqueValues(novels, 'tags'), [novels]);
 
   const fuse = useMemo(() => new Fuse(novels, fuseOptions), [novels]);
+
+  // For demonstration, we'll feature some of the first novels.
+  // In a real app, this would be based on popularity or curation.
+  const featuredNovels = novels.slice(0, 5);
+
+  const recentlyUpdatedNovels = [...novels]
+    .sort((a, b) => {
+      if (a.releaseDate && b.releaseDate) {
+        return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
+      }
+      if (a.releaseDate) return -1;
+      if (b.releaseDate) return 1;
+      return 0;
+    })
+    .slice(0, 5);
 
   useEffect(() => {
     const query = searchParams.get('q');
@@ -102,11 +119,13 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
       return novels.filter(novel => library.includes(novel.id));
     }
 
+    let isSearchingOrFiltering = searchTerm || categoryFilter || statusFilter || ageRatingFilter || selectedTags.length > 0;
+
     if (searchTerm) {
       novelsToFilter = fuse.search(searchTerm).map(result => result.item);
     }
     
-    if (activeTab === 'explore') {
+    if (activeTab === 'explore' || (activeTab === 'all' && isSearchingOrFiltering)) {
       if (categoryFilter) {
         novelsToFilter = novelsToFilter.filter(n => n.category === categoryFilter);
       }
@@ -125,120 +144,132 @@ export function ExploreView({ novels, initialSearchTerm = '' }: ExploreViewProps
   }, [novels, searchTerm, activeTab, library, fuse, categoryFilter, statusFilter, ageRatingFilter, selectedTags]);
 
   const isSearching = searchTerm.length > 0;
+  const showCarousels = activeTab === 'all' && !isSearching && !categoryFilter && !statusFilter && !ageRatingFilter && selectedTags.length === 0;
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-      <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="relative w-full md:max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input 
-            placeholder="Search by title, author, or tag..." 
-            className="pl-10"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-           {isSearching && (
-            <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={clearSearch}>
-              <X className="h-4 w-4"/>
-            </Button>
-          )}
-        </div>
-        <TabsList>
-          <TabsTrigger value="all">All Novels</TabsTrigger>
-          <TabsTrigger value="explore">Explore</TabsTrigger>
-          <TabsTrigger value="library" disabled={!isReady}>My Library</TabsTrigger>
-        </TabsList>
-      </div>
-      
-      <TabsContent value="all">
-        {isSearching && (
-            <div className="flex items-center justify-between border-b pb-4 mb-8">
-            <div>
-                <h2 className="text-2xl font-semibold tracking-tight">Search Results</h2>
-                <p className="text-muted-foreground">Found {filteredNovels.length} results for &quot;{searchTerm}&quot;</p>
+    <div className="space-y-8 md:space-y-12">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+            <div className="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="relative w-full md:max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input 
+                    placeholder="Search by title, author, or tag..." 
+                    className="pl-10"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                />
+                {isSearching && (
+                    <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={clearSearch}>
+                    <X className="h-4 w-4"/>
+                    </Button>
+                )}
+                </div>
+                <TabsList>
+                <TabsTrigger value="all">All Novels</TabsTrigger>
+                <TabsTrigger value="explore">Explore</TabsTrigger>
+                <TabsTrigger value="library" disabled={!isReady}>My Library</TabsTrigger>
+                </TabsList>
             </div>
-            </div>
-        )}
-        <NovelList novels={filteredNovels} searchTerm={searchTerm} />
-      </TabsContent>
+            
+            <TabsContent value="all" className="space-y-12 md:space-y-16">
+                 {showCarousels && (
+                    <>
+                        <FeaturedCarousel novels={featuredNovels} />
+                        <RecentlyUpdatedCarousel novels={recentlyUpdatedNovels} />
+                    </>
+                 )}
+                <div>
+                  {isSearching && (
+                      <div className="flex items-center justify-between border-b pb-4 mb-8">
+                      <div>
+                          <h2 className="text-2xl font-semibold tracking-tight">Search Results</h2>
+                          <p className="text-muted-foreground">Found {filteredNovels.length} results for &quot;{searchTerm}&quot;</p>
+                      </div>
+                      </div>
+                  )}
+                  <h2 className="text-2xl font-bold tracking-tight mb-4">All Novels</h2>
+                  <NovelList novels={filteredNovels} searchTerm={searchTerm} />
+                </div>
+            </TabsContent>
 
-      <TabsContent value="explore">
-        <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="space-y-4">
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full md:w-auto">
-              <Filter className="mr-2 h-4 w-4" />
-              <span>Filters</span>
-              <ChevronDown className="ml-2 h-4 w-4 transition-transform data-[state=open]:rotate-180" />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent asChild>
-            <Card>
-                <CardContent className="p-4 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-1">
-                            <label className="text-sm font-medium">Category</label>
-                            <Select value={categoryFilter} onValueChange={value => setCategoryFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Categories</SelectItem>
-                                    {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="space-y-1">
-                            <label className="text-sm font-medium">Status</label>
-                             <Select value={statusFilter} onValueChange={value => setStatusFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger><SelectValue placeholder="All Statuses" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Statuses</SelectItem>
-                                    {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="space-y-1">
-                            <label className="text-sm font-medium">Age Rating</label>
-                            <Select value={ageRatingFilter} onValueChange={value => setAgeRatingFilter(value === 'all' ? '' : value)}>
-                                <SelectTrigger><SelectValue placeholder="All Ages" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Ages</SelectItem>
-                                    {ageRatings.map(r => <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Tags</label>
-                         <div className="flex flex-wrap gap-2">
-                            {allTags.map(tag => (
-                                <Badge 
-                                    key={tag}
-                                    variant={selectedTags.includes(tag) ? "default" : "secondary"}
-                                    onClick={() => handleTagToggle(tag)}
-                                    className="cursor-pointer transition-colors"
-                                >
-                                    {tag}
-                                </Badge>
-                            ))}
-                        </div>
-                    </div>
-                     <div className="flex justify-end">
-                        <Button variant="ghost" onClick={resetFilters}>
-                            <X className="mr-2 h-4 w-4" />
-                            Reset Filters
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-          </CollapsibleContent>
-        </Collapsible>
-        <div className="mt-8">
-            <NovelList novels={filteredNovels} searchTerm={searchTerm} />
-        </div>
-      </TabsContent>
+            <TabsContent value="explore">
+                <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="space-y-4">
+                <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full md:w-auto">
+                    <Filter className="mr-2 h-4 w-4" />
+                    <span>Filters</span>
+                    <ChevronDown className="ml-2 h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent asChild>
+                    <Card>
+                        <CardContent className="p-4 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium">Category</label>
+                                    <Select value={categoryFilter} onValueChange={value => setCategoryFilter(value === 'all' ? '' : value)}>
+                                        <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Categories</SelectItem>
+                                            {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium">Status</label>
+                                    <Select value={statusFilter} onValueChange={value => setStatusFilter(value === 'all' ? '' : value)}>
+                                        <SelectTrigger><SelectValue placeholder="All Statuses" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Statuses</SelectItem>
+                                            {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium">Age Rating</label>
+                                    <Select value={ageRatingFilter} onValueChange={value => setAgeRatingFilter(value === 'all' ? '' : value)}>
+                                        <SelectTrigger><SelectValue placeholder="All Ages" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Ages</SelectItem>
+                                            {ageRatings.map(r => <SelectItem key={r} value={r} className="capitalize">{r}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Tags</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {allTags.map(tag => (
+                                        <Badge 
+                                            key={tag}
+                                            variant={selectedTags.includes(tag) ? "default" : "secondary"}
+                                            onClick={() => handleTagToggle(tag)}
+                                            className="cursor-pointer transition-colors"
+                                        >
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex justify-end">
+                                <Button variant="ghost" onClick={resetFilters}>
+                                    <X className="mr-2 h-4 w-4" />
+                                    Reset Filters
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </CollapsibleContent>
+                </Collapsible>
+                <div className="mt-8">
+                    <NovelList novels={filteredNovels} searchTerm={searchTerm} />
+                </div>
+            </TabsContent>
 
-      <TabsContent value="library">
-        <NovelList novels={filteredNovels} />
-      </TabsContent>
-    </Tabs>
+            <TabsContent value="library">
+                <NovelList novels={filteredNovels} />
+            </TabsContent>
+        </Tabs>
+    </div>
   );
 }
