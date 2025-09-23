@@ -8,6 +8,7 @@ import { CheckCircle2, Circle, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLoading } from "@/components/loading-provider";
 
 type ChapterListProps = {
     novel: Novel;
@@ -18,6 +19,7 @@ const CHAPTERS_TO_SHOW = 5;
 
 export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListProps) {
     const { progress, isReady } = useReadingProgress();
+    const { startLoading } = useLoading();
     const novelProgress = progress[novel.id];
     const [showAll, setShowAll] = useState(false);
 
@@ -45,7 +47,7 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
                         const isRead = isReady && chapter.id <= lastReadChapterId;
                         return (
                             <li key={chapter.id}>
-                                <Link href={`/novels/${novel.id}/${chapter.id}`} className="block p-4 hover:bg-accent transition-colors">
+                                <Link onClick={startLoading} href={`/novels/${novel.id}/${chapter.id}`} className="block p-4 hover:bg-accent transition-colors">
                                     <div className="flex items-center gap-4">
                                         {isReady ? (
                                              <div className="flex items-center justify-center h-6 w-6">
@@ -78,7 +80,7 @@ export function ChapterList({ novel, showAllChaptersLink = true }: ChapterListPr
                     </Button>
                     {showAllChaptersLink && (
                         <Button asChild variant="ghost" size="icon">
-                             <Link href={`/novels/${novel.id}/chapters`}>
+                             <Link onClick={startLoading} href={`/novels/${novel.id}/chapters`}>
                                 <List className="h-5 w-5" />
                                 <span className="sr-only">Go to chapters page</span>
                             </Link>

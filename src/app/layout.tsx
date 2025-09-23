@@ -4,6 +4,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { Inter, Lora } from 'next/font/google';
+import { LoadingProvider } from '@/components/loading-provider';
+import { LoadingOverlay } from '@/components/loading-overlay';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const lora = Lora({ subsets: ['latin'], variable: '--font-lora' });
@@ -27,8 +29,11 @@ export default function RootLayout({
       </head>
       <body className={cn("font-sans antialiased", inter.variable, lora.variable)}>
         <ThemeProvider>
-          {children}
-          <Toaster />
+          <LoadingProvider>
+            <LoadingOverlay />
+            {children}
+            <Toaster />
+          </LoadingProvider>
         </ThemeProvider>
       </body>
     </html>

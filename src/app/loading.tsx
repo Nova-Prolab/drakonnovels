@@ -1,12 +1,5 @@
-import { Loader2 } from "lucide-react";
-
+// This file is intentionally left blank to disable the default Next.js loading UI.
+// The custom client-side loading indicator is handled by LoadingProvider and LoadingOverlay.
 export default function Loading() {
-  return (
-    <div className="fixed top-6 right-6 z-50">
-      <div className="flex items-center gap-3 rounded-full bg-background/90 p-3 shadow-lg backdrop-blur-sm border">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-        <span className="text-sm font-medium text-foreground pr-2">Cargando...</span>
-      </div>
-    </div>
-  );
+  return null;
 }
