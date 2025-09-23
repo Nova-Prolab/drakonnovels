@@ -104,11 +104,11 @@ export async function getNovelInfo(novelId: string): Promise<NovelInfo | null> {
 export async function getChapters(novelId: string): Promise<Chapter[]> {
     const info = await getNovelInfo(novelId);
 
-    // If info.json has a chapter list, use it for structure. Titles will be fetched later.
+    // If info.json has a chapter list, use it for structure.
     if (info?.capitulos && info.capitulos.length > 0) {
         return info.capitulos.map(c => ({
             id: c.id,
-            title: c.titulo, // Use title from info.json if available
+            title: c.titulo,
             content: '', // Fetched on demand
         }));
     }
@@ -156,15 +156,13 @@ export async function getChapterContent(novelId: string, chapterId: number): Pro
     let title = `Chapter ${chapterId}`;
     const titleMatch = content.match(/<h1[^>]*>(.*?)<\/h1>/i);
     if (titleMatch && titleMatch[1]) {
-        title = titleMatch[1];
+        title = titleMatch[1].trim();
     } else {
         // Fallback to info.json if h1 is missing
         const info = await getNovelInfo(novelId);
-        if (info?.capitulos) {
-            const chapterInfo = info.capitulos.find(c => c.id === chapterId);
-            if (chapterInfo) {
-                title = chapterInfo.titulo;
-            }
+        const chapterInfo = info?.capitulos?.find(c => c.id === chapterId);
+        if (chapterInfo && chapterInfo.titulo) {
+            title = chapterInfo.titulo;
         }
     }
     
