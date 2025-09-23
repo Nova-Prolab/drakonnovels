@@ -15,11 +15,33 @@ import { Card, CardContent } from "./ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "./ui/badge";
+import { cn } from "@/lib/utils";
 
 export function FeaturedCarousel({ novels }: { novels: Novel[] }) {
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true })
   )
+  const [api, setApi] = React.useState<any>()
+  const [current, setCurrent] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCurrent(api.selectedScrollSnap())
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap())
+    }
+
+    api.on("select", onSelect)
+    
+    return () => {
+      api.off("select", onSelect)
+    }
+  }, [api])
+
 
   if (!novels || novels.length === 0) {
     return null;
@@ -28,6 +50,7 @@ export function FeaturedCarousel({ novels }: { novels: Novel[] }) {
   return (
     <section className="w-full">
       <Carousel
+        setApi={setApi}
         plugins={[plugin.current]}
         className="w-full"
         onMouseEnter={plugin.current.stop}
@@ -51,7 +74,10 @@ export function FeaturedCarousel({ novels }: { novels: Novel[] }) {
                         <div className="hidden md:block md:col-span-1">
                             <NovelCard novel={novel} isCarouselItem={true} />
                         </div>
-                        <div className="md:col-span-2 text-white text-center md:text-left">
+                        <div className={cn(
+                            "md:col-span-2 text-white text-center md:text-left transition-all duration-700",
+                            current === index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                          )}>
                             <h2 className="text-3xl lg:text-5xl font-bold tracking-tight text-pretty shadow-lg">
                                 {novel.title}
                             </h2>
@@ -66,7 +92,7 @@ export function FeaturedCarousel({ novels }: { novels: Novel[] }) {
                                 ))}
                             </div>
                             <div className="mt-6">
-                                <Link href={`/novels/${novel.id}`} className="inline-block px-8 py-3 rounded-md bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors">
+                                <Link href={`/novels/${novel.id}`} className="inline-block px-8 py-3 rounded-md bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-primary/30">
                                     Start Reading
                                 </Link>
                             </div>
