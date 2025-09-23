@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
 import { ChapterTranslator } from './chapter-translator';
+import { useLoading } from './loading-provider';
 
 type ReaderViewProps = {
   novel: Novel;
@@ -24,6 +25,7 @@ type ReaderViewProps = {
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
   const { fontSize, font, isThemeReady } = useTheme();
   const { updateProgress } = useReadingProgress();
+  const { startLoading } = useLoading();
   const contentRef = useRef<HTMLDivElement>(null);
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
 
@@ -109,7 +111,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
               <div className="my-8">
                 <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />
               </div>
-              {displayedContent.split('\n\n').map((paragraph, index) => (
+              {displayedContent.split('\n').map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>
               ))}
             </div>
@@ -119,7 +121,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                   <div className="flex-1 flex justify-start">
                     {prevChapter && (
                       <Button asChild variant="outline" className="w-full sm:w-auto" title="Previous Chapter">
-                        <Link href={`/novels/${novel.id}/${prevChapter.id}`}>
+                        <Link onClick={startLoading} href={`/novels/${novel.id}/${prevChapter.id}`}>
                           <ArrowLeft className="h-4 w-4 sm:mr-2" />
                           <span className="hidden sm:inline">Previous</span>
                         </Link>
@@ -129,7 +131,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                   
                   <div className="flex-none">
                     <Button asChild variant="secondary" title="All Chapters" className="w-full">
-                        <Link href={`/novels/${novel.id}/chapters`}>
+                        <Link onClick={startLoading} href={`/novels/${novel.id}/chapters`}>
                             <List className="h-4 w-4 sm:mr-2" />
                             <span className="hidden sm:inline">All Chapters</span>
                         </Link>
@@ -139,7 +141,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                   <div className="flex-1 flex justify-end">
                     {nextChapter && (
                       <Button asChild variant="outline" className="w-full sm:w-auto" title="Next Chapter">
-                        <Link href={`/novels/${novel.id}/${nextChapter.id}`}>
+                        <Link onClick={startLoading} href={`/novels/${novel.id}/${nextChapter.id}`}>
                           <span className="hidden sm:inline">Next</span>
                           <ArrowRight className="h-4 w-4 sm:ml-2" />
                         </Link>

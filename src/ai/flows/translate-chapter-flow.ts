@@ -30,9 +30,11 @@ export async function translateChapter(input: TranslateChapterInput): Promise<Tr
     output: {schema: TranslateChapterOutputSchema},
     prompt: `Translate the following chapter text into {{language}}. Return the full translated text.
 
+It is crucial that you preserve the original paragraph structure. Where there are double line breaks in the original text, there must be double line breaks in the translated text.
+
 Chapter Text:
 {{{chapterText}}}`,
-    system: 'You are a literary translator. You will translate the provided text accurately and completely.'
+    system: 'You are a literary translator. You will translate the provided text accurately and completely, preserving all original formatting, especially paragraph breaks.'
   });
 
   const {output} = await translateChapterPrompt(input);
