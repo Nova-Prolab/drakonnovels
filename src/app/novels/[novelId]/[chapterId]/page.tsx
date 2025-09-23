@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: ReaderPageProps): Promise<Met
   }
 
   return {
-    title: `${novel.title} - ${chapter.title} | Story Weaver`,
+    title: `${novel.title} - ${chapter.title} | DrakonInk`,
     description: `Read ${chapter.title} of ${novel.title}.`,
   };
 }

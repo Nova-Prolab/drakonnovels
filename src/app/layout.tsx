@@ -9,8 +9,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const lora = Lora({ subsets: ['latin'], variable: '--font-lora' });
 
 export const metadata: Metadata = {
-  title: 'Story Weaver',
-  description: 'Weave your own reading experience.',
+  title: 'DrakonInk',
+  description: 'Your portal to infinite stories.',
 };
 
 export default function RootLayout({

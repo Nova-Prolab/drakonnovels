@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: ChaptersPageProps): Promise<M
     }
   
     return {
-      title: `Chapters for ${novel.title} | Story Weaver`,
+      title: `Chapters for ${novel.title} | DrakonInk`,
       description: `Browse all chapters for the novel ${novel.title}.`,
     };
 }

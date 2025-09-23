@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: NovelDetailsPageProps): Promi
   }
 
   return {
-    title: `${novel.title} | Story Weaver`,
+    title: `${novel.title} | DrakonInk`,
     description: novel.description,
   };
 }
