@@ -32,28 +32,29 @@ const HighlightedParagraph = memo(function HighlightedParagraph({
   isCurrentlyPlaying: boolean;
   spokenCharIndex: number;
 }) {
-  const words = useMemo(() => {
+  const wordsAndSpaces = useMemo(() => {
     // This regex splits by space and keeps the spaces as separate elements
     return paragraph.split(/(\s+)/);
   }, [paragraph]);
 
-  if (!isCurrentlyPlaying || spokenCharIndex < 0) {
-    return (
-      <p className="transition-colors duration-300 rounded-md">
-        {paragraph}
-      </p>
-    );
+  if (!isCurrentlyPlaying) {
+    return <p>{paragraph}</p>;
   }
 
   let charCount = 0;
   return (
     <p className={cn("transition-colors duration-300 rounded-md", "bg-accent")}>
-      {words.map((word, index) => {
+      {wordsAndSpaces.map((wordOrSpace, index) => {
         const wordStart = charCount;
-        const wordEnd = charCount + word.length;
+        const wordEnd = charCount + wordOrSpace.length;
         charCount = wordEnd;
 
-        const isSpoken = spokenCharIndex >= wordStart && spokenCharIndex < wordEnd && word.trim() !== '';
+        // Don't highlight spaces
+        if (wordOrSpace.trim() === '') {
+          return <span key={index}>{wordOrSpace}</span>;
+        }
+
+        const isSpoken = spokenCharIndex >= wordStart && spokenCharIndex < wordEnd;
 
         return (
           <span
@@ -63,7 +64,7 @@ const HighlightedParagraph = memo(function HighlightedParagraph({
               isSpoken && "bg-primary/30 rounded"
             )}
           >
-            {word}
+            {wordOrSpace}
           </span>
         );
       })}
