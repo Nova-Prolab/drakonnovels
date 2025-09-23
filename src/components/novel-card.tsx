@@ -9,10 +9,25 @@ import { Card, CardContent } from './ui/card';
 import { Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Badge } from './ui/badge';
 
 type NovelCardProps = {
   novel: Novel;
 };
+
+const getAgeRatingColor = (ageRating?: string) => {
+  if (!ageRating) return 'bg-gray-500';
+  switch (ageRating.toLowerCase()) {
+    case 'mature':
+      return 'bg-red-600';
+    case 'teen':
+      return 'bg-amber-500';
+    case 'all ages':
+      return 'bg-green-500';
+    default:
+      return 'bg-gray-500';
+  }
+}
 
 export function NovelCard({ novel }: NovelCardProps) {
   const { library, addToLibrary, removeFromLibrary } = useLibrary();
@@ -45,6 +60,25 @@ export function NovelCard({ novel }: NovelCardProps) {
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                   />
+                   <div className="absolute top-2 left-2 flex flex-col gap-1">
+                    {novel.status && (
+                      <Badge className="bg-primary/80 backdrop-blur-sm border-none text-xs capitalize">
+                        {novel.status}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                    {novel.ageRating && (
+                      <div className="flex justify-end">
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-md text-white text-xs font-bold uppercase tracking-wider",
+                          getAgeRatingColor(novel.ageRating)
+                        )}>
+                          {novel.ageRating}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
           </Link>
