@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { Novel, Chapter } from '@/lib/types';
@@ -10,7 +9,7 @@ import Link from 'next/link';
 import { ChapterSummary } from './chapter-summary';
 import { ReaderSettings } from './reader-settings';
 import { useReadingProgress } from '@/lib/hooks';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, memo } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import Image from 'next/image';
 import { ChapterTranslator } from './chapter-translator';
@@ -24,6 +23,54 @@ type ReaderViewProps = {
   nextChapter: Chapter | null;
 };
 
+const HighlightedParagraph = memo(function HighlightedParagraph({
+  paragraph,
+  isCurrentlyPlaying,
+  spokenCharIndex,
+}: {
+  paragraph: string;
+  isCurrentlyPlaying: boolean;
+  spokenCharIndex: number;
+}) {
+  const words = useMemo(() => {
+    // This regex splits by space and keeps the spaces as separate elements
+    return paragraph.split(/(\s+)/);
+  }, [paragraph]);
+
+  if (!isCurrentlyPlaying || spokenCharIndex < 0) {
+    return (
+      <p className="transition-colors duration-300 rounded-md">
+        {paragraph}
+      </p>
+    );
+  }
+
+  let charCount = 0;
+  return (
+    <p className={cn("transition-colors duration-300 rounded-md", "bg-accent")}>
+      {words.map((word, index) => {
+        const wordStart = charCount;
+        const wordEnd = charCount + word.length;
+        charCount = wordEnd;
+
+        const isSpoken = spokenCharIndex >= wordStart && spokenCharIndex < wordEnd && word.trim() !== '';
+
+        return (
+          <span
+            key={index}
+            className={cn(
+              "transition-colors duration-150",
+              isSpoken && "bg-primary/30 rounded"
+            )}
+          >
+            {word}
+          </span>
+        );
+      })}
+    </p>
+  );
+});
+
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
   const { fontSize, font, isThemeReady, lineHeight, columnWidth, textAlign } = useTheme();
   const { updateCurrentChapter } = useReadingProgress();
@@ -33,6 +80,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
   
   const [displayedContent, setDisplayedContent] = useState(chapter.content);
   const [currentlyPlayingParagraph, setCurrentlyPlayingParagraph] = useState(-1);
+  const [spokenCharIndex, setSpokenCharIndex] = useState(-1);
 
   useEffect(() => {
     updateCurrentChapter(novel.id, chapter.id);
@@ -41,6 +89,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
   useEffect(() => {
     setDisplayedContent(chapter.content);
     setCurrentlyPlayingParagraph(-1); // Reset highlight on chapter change
+    setSpokenCharIndex(-1);
     if(mainRef.current) {
       mainRef.current.scrollTop = 0;
     }
@@ -88,6 +137,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
             <ChapterAudioPlayer 
               chapterText={chapter.content} 
               onParagraphChange={setCurrentlyPlayingParagraph}
+              onBoundary={setSpokenCharIndex}
             />
 
             <ChapterTranslator 
@@ -124,15 +174,12 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                 <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />
               </div>
               {paragraphs.map((paragraph, index) => (
-                  <p 
-                    key={index} 
-                    className={cn(
-                      "transition-colors duration-300 rounded-md",
-                      index === currentlyPlayingParagraph && "bg-accent"
-                    )}
-                  >
-                    {paragraph}
-                  </p>
+                  <HighlightedParagraph
+                    key={index}
+                    paragraph={paragraph}
+                    isCurrentlyPlaying={index === currentlyPlayingParagraph}
+                    spokenCharIndex={spokenCharIndex}
+                  />
               ))}
             </div>
 
