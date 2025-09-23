@@ -1,15 +1,13 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import Link from 'next/link';
 import type { Metadata } from 'next';
 
 import { novels } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Header } from '@/components/header';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ReadingProgressButton } from './_components/reading-progress-button';
-import { BookOpen } from 'lucide-react';
+import { ChapterList } from './_components/chapter-list';
 
 type NovelDetailsPageProps = {
   params: {
@@ -87,18 +85,8 @@ export default function NovelDetailsPage({ params }: NovelDetailsPageProps) {
                 </div>
             </div>
 
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-3">Chapters</h3>
-              <ul className="space-y-2">
-                {novel.chapters.map(chapter => (
-                  <li key={chapter.id}>
-                    <Link href={`/novels/${novel.id}/${chapter.id}`} className="block p-3 rounded-lg hover:bg-accent transition-colors">
-                      <p className="font-medium">Chapter {chapter.id}: {chapter.title}</p>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ChapterList novel={novel} />
+
           </div>
         </div>
       </main>
