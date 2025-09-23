@@ -2,15 +2,10 @@
 
 import { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -19,10 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from '@/components/ui/button';
-import { Languages, Loader2 } from 'lucide-react';
+import { Languages, Loader2, RefreshCcw } from 'lucide-react';
 import { getChapterTranslation } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { ScrollArea } from './ui/scroll-area';
+import { Label } from './ui/label';
 
 const languages = [
     { code: "es", name: "Spanish" },
@@ -60,10 +55,11 @@ const languages = [
 
 type ChapterTranslatorProps = {
   chapterText: string;
+  onContentChange: (newContent: string) => void;
+  isTranslated: boolean;
 };
 
-export function ChapterTranslator({ chapterText }: ChapterTranslatorProps) {
-  const [translatedText, setTranslatedText] = useState('');
+export function ChapterTranslator({ chapterText, onContentChange, isTranslated }: ChapterTranslatorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
@@ -76,69 +72,79 @@ export function ChapterTranslator({ chapterText }: ChapterTranslatorProps) {
     }
     setIsLoading(true);
     setError('');
-    setTranslatedText('');
+    
     const result = await getChapterTranslation(chapterText, selectedLanguage);
     setIsLoading(false);
+    
     if (result.translatedText) {
-      setTranslatedText(result.translatedText);
+      onContentChange(result.translatedText);
+      setIsOpen(false);
     } else {
       setError(result.error || 'An unknown error occurred.');
     }
   };
 
+  const showOriginal = () => {
+    onContentChange(chapterText);
+    setSelectedLanguage('');
+    setError('');
+    setIsOpen(false);
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="Translate chapter">
           <Languages className="h-5 w-5" />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Translate Chapter</DialogTitle>
-          <DialogDescription>
-            Select a language to translate the entire chapter. This uses AI and may not be 100% accurate.
-          </DialogDescription>
-        </DialogHeader>
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="end">
+        <div className="grid gap-4">
+          <div className="space-y-2">
+            <h4 className="font-medium leading-none">Translate Chapter</h4>
+            <p className="text-sm text-muted-foreground">
+              Select a language to translate the chapter.
+            </p>
+          </div>
 
-        <div className="space-y-4 py-4">
-            <div className="flex items-center space-x-2">
-                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {languages.map(lang => (
-                            <SelectItem key={lang.code} value={lang.name}>
-                                {lang.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Button onClick={handleTranslate} disabled={isLoading || !selectedLanguage}>
+          {isTranslated ? (
+            <Button onClick={showOriginal} variant="outline">
+                <RefreshCcw className="mr-2 h-4 w-4" />
+                Show Original Text
+            </Button>
+          ) : (
+            <div className="grid gap-2">
+                <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="language" className="col-span-1">Language</Label>
+                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                        <SelectTrigger id="language" className="col-span-2 h-8">
+                            <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {languages.map(lang => (
+                                <SelectItem key={lang.code} value={lang.name}>
+                                    {lang.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <Button onClick={handleTranslate} disabled={isLoading || !selectedLanguage}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Languages className="mr-2 h-4 w-4" />}
                     Translate
                 </Button>
             </div>
-            {error && (
-                <Alert variant="destructive">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-                </Alert>
-            )}
-            {translatedText && (
-                <ScrollArea className="h-72 w-full rounded-md border p-4">
-                     <p className="text-sm text-muted-foreground">{translatedText}</p>
-                </ScrollArea>
-            )}
-        </div>
+          )}
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          {error && (
+            <Alert variant="destructive" className="text-xs">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

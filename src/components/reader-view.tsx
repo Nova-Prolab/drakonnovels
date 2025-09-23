@@ -27,10 +27,17 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
   const { updateProgress } = useReadingProgress();
   const contentRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [displayedContent, setDisplayedContent] = useState(chapter.content);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  
+  // Reset content when chapter changes
+  useEffect(() => {
+    setDisplayedContent(chapter.content);
+  }, [chapter.content]);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,30 +56,41 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
     };
   }, [novel.id, chapter.id, updateProgress]);
 
+  const handleContentChange = (newContent: string) => {
+    setDisplayedContent(newContent);
+    if(contentRef.current) {
+        contentRef.current.scrollTop = 0;
+    }
+  }
+
   return (
-    <div className={cn("bg-background text-foreground font-sans", isMounted && (font === 'serif' ? 'font-serif' : 'font-sans'))}>
+    <div className={cn("bg-background text-foreground", isMounted && (font === 'serif' ? 'font-serif' : 'font-sans'))}>
       <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
-             <Button asChild variant="ghost" size="icon" aria-label="Back to library">
+            <Button asChild variant="ghost" size="icon" aria-label="Back to home">
               <Link href="/">
                 <Home className="h-5 w-5" />
               </Link>
             </Button>
             <div className="flex items-center gap-3 overflow-hidden">
               {coverImageUrl && (
-                <div className="relative h-10 w-8 flex-shrink-0">
+                <Link href={`/novels/${novel.id}`} className="relative h-10 w-8 flex-shrink-0">
                   <Image src={coverImageUrl} alt={`${novel.title} cover`} fill className="object-cover rounded-sm" />
-                </div>
+                </Link>
               )}
               <div className="flex flex-col overflow-hidden">
-                <h1 className="text-sm font-semibold truncate" title={novel.title}>{novel.title}</h1>
+                 <Link href={`/novels/${novel.id}`} className="text-sm font-semibold truncate" title={novel.title}>{novel.title}</Link>
                 <h2 className="text-xs text-muted-foreground truncate" title={chapter.title}>Chapter {chapter.id}: {chapter.title}</h2>
               </div>
             </div>
           </div>
           <div className="flex items-center">
-            <ChapterTranslator chapterText={chapter.content} />
+            <ChapterTranslator 
+                chapterText={chapter.content} 
+                onContentChange={handleContentChange} 
+                isTranslated={displayedContent !== chapter.content}
+            />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Reading settings">
@@ -94,7 +112,7 @@ export function ReaderView({ novel, chapter, coverImageUrl, prevChapter, nextCha
             <div className="my-8">
               <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />
             </div>
-            {chapter.content.split('\n\n').map((paragraph, index) => (
+            {displayedContent.split('\n\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
             ))}
           </div>
