@@ -9,11 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 type ChapterAudioPlayerProps = {
   chapterText: string;
   onParagraphChange: (index: number) => void;
+  onBoundary: (charIndex: number) => void;
 };
 
 type SpeechState = "idle" | "playing" | "paused";
 
-export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAudioPlayerProps) {
+export function ChapterAudioPlayer({ chapterText, onParagraphChange, onBoundary }: ChapterAudioPlayerProps) {
   const [speechState, setSpeechState] = useState<SpeechState>("idle");
   const paragraphsRef = useRef<string[]>([]);
   const currentParagraphIndexRef = useRef<number>(0);
@@ -28,6 +29,7 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAu
         utteranceRef.current.onresume = null;
         utteranceRef.current.onend = null;
         utteranceRef.current.onerror = null;
+        utteranceRef.current.onboundary = null;
         utteranceRef.current = null;
       }
       if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
@@ -44,15 +46,17 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAu
       cleanUpSpeech();
       setSpeechState("idle");
       onParagraphChange(-1);
+      onBoundary(-1);
       currentParagraphIndexRef.current = 0;
     };
-  }, [chapterText, cleanUpSpeech, onParagraphChange]);
+  }, [chapterText, cleanUpSpeech, onParagraphChange, onBoundary]);
 
   const speakParagraph = (index: number) => {
     if (index >= paragraphsRef.current.length || typeof window === "undefined" || !window.speechSynthesis) {
       cleanUpSpeech();
       setSpeechState("idle");
       onParagraphChange(-1);
+      onBoundary(-1);
       currentParagraphIndexRef.current = 0;
       return;
     }
@@ -68,6 +72,9 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAu
     }
     utterance.onpause = () => setSpeechState("paused");
     utterance.onresume = () => setSpeechState("playing");
+    utterance.onboundary = (event) => {
+      onBoundary(event.charIndex);
+    }
     utterance.onend = () => {
       if (currentParagraphIndexRef.current < paragraphsRef.current.length - 1) {
         currentParagraphIndexRef.current += 1;
@@ -75,6 +82,7 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAu
       } else {
         setSpeechState("idle");
         onParagraphChange(-1);
+        onBoundary(-1);
         currentParagraphIndexRef.current = 0;
       }
     };
@@ -88,6 +96,7 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAu
       cleanUpSpeech();
       setSpeechState("idle");
       onParagraphChange(-1);
+      onBoundary(-1);
       currentParagraphIndexRef.current = 0;
     };
     
@@ -125,6 +134,7 @@ export function ChapterAudioPlayer({ chapterText, onParagraphChange }: ChapterAu
     cleanUpSpeech();
     setSpeechState("idle");
     onParagraphChange(-1);
+    onBoundary(-1);
     currentParagraphIndexRef.current = 0;
   };
 
