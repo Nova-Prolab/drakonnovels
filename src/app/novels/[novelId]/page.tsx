@@ -6,6 +6,7 @@ import { ReadingProgressButton } from './_components/reading-progress-button';
 import { ChapterList } from './_components/chapter-list';
 import { getNovelDetails } from '@/lib/github-service';
 import { Header } from '@/components/header';
+import { ExpandableDescription } from './_components/expandable-description';
 
 type NovelDetailsPageProps = {
   params: {
@@ -61,11 +62,7 @@ export default async function NovelDetailsPage({ params }: NovelDetailsPageProps
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight mt-1">{novel.title}</h1>
             <p className="mt-2 text-lg text-muted-foreground">by {novel.author}</p>
             
-            <div className="mt-6 prose prose-lg dark:prose-invert max-w-none font-sans">
-                {novel.description.split('\\n').map((line, index) => (
-                    <p key={index}>{line}</p>
-                ))}
-            </div>
+            <ExpandableDescription description={novel.description} />
 
             <div className="mt-6">
                 <h3 className="text-lg font-semibold">Tags</h3>
