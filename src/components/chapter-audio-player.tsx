@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useToast } from '@/hooks/use-toast';
 
 type ChapterAudioPlayerProps = {
   chapterText: string;
@@ -19,58 +20,79 @@ type SpeechState = "idle" | "playing" | "paused";
 export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
   const [speechState, setSpeechState] = useState<SpeechState>("idle");
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const { toast } = useToast();
 
   const cleanUpSpeech = useCallback(() => {
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+        }
       }
       setSpeechState("idle");
   }, []);
-
+  
+  // This effect ensures cleanup when the component unmounts or the popover closes.
   useEffect(() => {
-    // Cleanup on component unmount
     return () => {
       cleanUpSpeech();
     };
   }, [cleanUpSpeech]);
 
-  const handlePlay = () => {
-    // Create a new utterance
-    const utterance = new SpeechSynthesisUtterance(chapterText);
-    utterance.lang = "es-ES"; 
 
-    utterance.onstart = () => {
-      setSpeechState("playing");
-    };
-    utterance.onpause = () => {
-      setSpeechState("paused");
-    };
-    utterance.onresume = () => {
-      setSpeechState("playing");
-    };
-    utterance.onend = () => {
-      setSpeechState("idle");
-    };
+  const handlePlay = () => {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+        toast({
+            title: "Error",
+            description: "Tu navegador no soporta la síntesis de voz.",
+            variant: "destructive",
+        });
+        return;
+    }
+    
+    // Cleanup any previous utterance
+    cleanUpSpeech();
+
+    const utterance = new SpeechSynthesisUtterance(chapterText);
+    utterance.lang = "es-ES";
+
+    utterance.onstart = () => setSpeechState("playing");
+    utterance.onpause = () => setSpeechState("paused");
+    utterance.onresume = () => setSpeechState("playing");
+    utterance.onend = () => setSpeechState("idle");
     utterance.onerror = (event) => {
-        console.error("SpeechSynthesis Error", event);
+        console.error("SpeechSynthesis Error:", event);
+        toast({
+            title: "Error de Audio",
+            description: "No se pudo reproducir el audio. Por favor, inténtalo de nuevo.",
+            variant: "destructive",
+        });
         setSpeechState("idle");
     };
     
     utteranceRef.current = utterance;
+
+    // A common trick to "wake up" the speech synthesis API
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+    
     window.speechSynthesis.speak(utterance);
   };
   
   const handlePause = () => {
-    window.speechSynthesis.pause();
+    if (window.speechSynthesis) {
+        window.speechSynthesis.pause();
+    }
   };
   
   const handleResume = () => {
-    window.speechSynthesis.resume();
+    if (window.speechSynthesis) {
+        window.speechSynthesis.resume();
+    }
   };
 
   const handleStop = () => {
-    window.speechSynthesis.cancel();
-    setSpeechState("idle");
+    cleanUpSpeech();
   };
 
   const getPlayButton = () => {
@@ -102,7 +124,11 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
 
   return (
     <div>
-      <Popover onOpenChange={(open) => !open && cleanUpSpeech()}>
+      <Popover onOpenChange={(open) => {
+        if (!open) {
+          handleStop();
+        }
+      }}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" aria-label="Escuchar capítulo">
             <Volume2 className="h-5 w-5" />
@@ -131,4 +157,3 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     </div>
   );
 }
-
