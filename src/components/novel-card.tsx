@@ -13,6 +13,7 @@ import { Badge } from './ui/badge';
 
 type NovelCardProps = {
   novel: Novel;
+  isCarouselItem?: boolean;
 };
 
 const getAgeRatingColor = (ageRating?: string) => {
@@ -29,7 +30,7 @@ const getAgeRatingColor = (ageRating?: string) => {
   }
 }
 
-export function NovelCard({ novel }: NovelCardProps) {
+export function NovelCard({ novel, isCarouselItem = false }: NovelCardProps) {
   const { library, addToLibrary, removeFromLibrary } = useLibrary();
   const { progress } = useReadingProgress();
 
@@ -48,8 +49,8 @@ export function NovelCard({ novel }: NovelCardProps) {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="relative group">
-        <Card className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1">
+      <div className={cn("relative group transition-transform duration-500 ease-in-out", !isCarouselItem && "hover:[transform:rotateY(10deg)_rotateX(5deg)_scale(1.05)]")} style={{ perspective: '1000px' }}>
+        <Card className="overflow-hidden transition-all duration-300 ease-in-out group-hover:shadow-xl">
           <Link href={`/novels/${novel.id}`}>
               <CardContent className="p-0">
                 <div className="aspect-[2/3] relative">
