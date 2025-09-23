@@ -34,7 +34,7 @@ export function ExpandableDescription({ description, className }: ExpandableDesc
                     <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent" />
                 )}
                 {descriptionLines.map((line, index) => (
-                    <p key={index}>{line}</p>
+                    <p key={index} className={cn(index === 0 && "mt-0")}>{line}</p>
                 ))}
             </div>
             {isLongDescription && (
