@@ -23,7 +23,7 @@ type ReaderViewProps = {
 };
 
 export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderViewProps) {
-  const { fontSize, font, isThemeReady } = useTheme();
+  const { fontSize, font, isThemeReady, lineHeight, columnWidth, textAlign } = useTheme();
   const { updateProgress } = useReadingProgress();
   const { startLoading } = useLoading();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -59,11 +59,15 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
     }
   }
 
-  const fontClass = font === 'serif' ? 'font-serif' : 'font-sans';
+  const fontClass = 
+    font === 'serif' ? 'font-serif' : 
+    font === 'merriweather' ? 'font-merriweather' :
+    font === 'lato' ? 'font-lato' :
+    'font-sans';
 
   return (
     <div className={cn("bg-background text-foreground", isThemeReady ? fontClass : 'font-sans')}>
-      <header className="border-b bg-background/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2 overflow-hidden">
              <Button asChild variant="ghost" size="icon" aria-label="Back to home">
@@ -95,7 +99,7 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
                   <Settings className="h-5 w-5" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-64" align="end">
+              <PopoverContent className="w-80" align="end">
                 <ReaderSettings />
               </PopoverContent>
             </Popover>
@@ -105,8 +109,14 @@ export function ReaderView({ novel, chapter, prevChapter, nextChapter }: ReaderV
 
       <div className="flex flex-col">
         <main ref={contentRef} className="flex-1">
-          <div className="container mx-auto max-w-3xl px-4 py-8 md:py-12">
-            <div className="prose prose-lg dark:prose-invert" style={{ fontSize: `${fontSize}rem` }}>
+          <div className={cn("container mx-auto px-4 py-8 md:py-12", columnWidth)}>
+            <div 
+              className={cn("prose prose-lg dark:prose-invert", textAlign === "justify" && "text-justify")}
+              style={{ 
+                fontSize: `${fontSize}rem`,
+                lineHeight: lineHeight
+              }}
+            >
               <h1>{chapter.title}</h1>
               <div className="my-8">
                 <ChapterSummary novelTitle={novel.title} chapterNumber={chapter.id} chapterText={chapter.content} />

@@ -56,6 +56,27 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+  .sepia {
+    --background: 35 30% 94%; /* Un blanco hueso cálido */
+    --foreground: 40 50% 25%; /* Un marrón oscuro y profundo */
+    --card: 35 30% 90%; /* Un poco más oscuro que el fondo */
+    --card-foreground: 40 50% 25%;
+    --popover: 35 30% 90%;
+    --popover-foreground: 40 50% 25%;
+    --primary: 40 60% 40%; /* Un marrón medio para los elementos principales */
+    --primary-foreground: 35 30% 95%; /* Casi blanco */
+    --secondary: 35 30% 85%; /* Un tono más oscuro para secundario */
+    --secondary-foreground: 40 50% 25%;
+    --muted: 35 30% 85%;
+    --muted-foreground: 40 30% 45%; /* Un marrón grisáceo */
+    --accent: 35 30% 80%;
+    --accent-foreground: 40 50% 25%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 35 30% 95%;
+    --border: 35 25% 75%;
+    --input: 35 25% 75%;
+    --ring: 40 60% 40%;
+  }
 }
 
 @layer base {

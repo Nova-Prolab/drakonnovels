@@ -3,8 +3,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '@/lib/hooks';
 
-type Theme = 'light' | 'dark';
-type Font = 'sans' | 'serif';
+type Theme = 'light' | 'dark' | 'sepia';
+type Font = 'sans' | 'serif' | 'merriweather' | 'lato';
+type TextAlign = 'left' | 'justify';
 
 type ThemeContextType = {
   theme: Theme;
@@ -13,6 +14,12 @@ type ThemeContextType = {
   setFontSize: React.Dispatch<React.SetStateAction<number>>;
   font: Font;
   setFont: (font: Font) => void;
+  lineHeight: number;
+  setLineHeight: React.Dispatch<React.SetStateAction<number>>;
+  columnWidth: string;
+  setColumnWidth: React.Dispatch<React.SetStateAction<string>>;
+  textAlign: TextAlign;
+  setTextAlign: (align: TextAlign) => void;
   isThemeReady: boolean;
 };
 
@@ -22,8 +29,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState, isThemeReady] = useLocalStorage<Theme>('theme', 'dark');
   const [fontSize, setFontSize, isFontSizeReady] = useLocalStorage<number>('font-size', 1.0);
   const [font, setFontState, isFontReady] = useLocalStorage<Font>('font', 'serif');
+  const [lineHeight, setLineHeight, isLineHeightReady] = useLocalStorage<number>('line-height', 1.7);
+  const [columnWidth, setColumnWidth, isColumnWidthReady] = useLocalStorage<string>('column-width', 'max-w-3xl');
+  const [textAlign, setTextAlignState, isTextAlignReady] = useLocalStorage<TextAlign>('text-align', 'left');
 
-  const isReady = isThemeReady && isFontSizeReady && isFontReady;
+  const isReady = isThemeReady && isFontSizeReady && isFontReady && isLineHeightReady && isColumnWidthReady && isTextAlignReady;
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
@@ -33,11 +43,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setFontState(newFont);
   }, [setFontState]);
 
+  const setTextAlign = useCallback((newAlign: TextAlign) => {
+    setTextAlignState(newAlign);
+  }, [setTextAlignState]);
+
 
   useEffect(() => {
     if (isReady) {
       const root = window.document.documentElement;
-      root.classList.remove('light', 'dark');
+      root.classList.remove('light', 'dark', 'sepia');
       root.classList.add(theme);
 
       const body = window.document.body;
@@ -48,12 +62,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme, isReady]);
 
   const value = {
-    theme: theme,
+    theme,
     setTheme,
     fontSize: fontSize,
     setFontSize: setFontSize as React.Dispatch<React.SetStateAction<number>>,
-    font: font,
+    font,
     setFont,
+    lineHeight,
+    setLineHeight: setLineHeight as React.Dispatch<React.SetStateAction<number>>,
+    columnWidth,
+    setColumnWidth: setColumnWidth as React.Dispatch<React.SetStateAction<string>>,
+    textAlign,
+    setTextAlign,
     isThemeReady: isReady,
   };
 

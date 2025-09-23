@@ -19,6 +19,8 @@ export default {
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
         serif: ['var(--font-lora)', 'serif'],
+        merriweather: ['var(--font-merriweather)', 'serif'],
+        lato: ['var(--font-lato)', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
