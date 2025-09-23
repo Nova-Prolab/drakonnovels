@@ -16,16 +16,23 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
   const [speechState, setSpeechState] = useState<SpeechState>("idle");
   const paragraphsRef = useRef<string[]>([]);
   const currentParagraphIndexRef = useRef<number>(0);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
 
   const cleanUpSpeech = useCallback(() => {
     if (typeof window !== "undefined" && window.speechSynthesis) {
+       if (utteranceRef.current) {
+        utteranceRef.current.onstart = null;
+        utteranceRef.current.onpause = null;
+        utteranceRef.current.onresume = null;
+        utteranceRef.current.onend = null;
+        utteranceRef.current.onerror = null;
+        utteranceRef.current = null;
+      }
       if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
         window.speechSynthesis.cancel();
       }
     }
-    currentParagraphIndexRef.current = 0;
-    setSpeechState("idle");
   }, []);
   
   useEffect(() => {
@@ -34,25 +41,35 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
     // Clean up when the component unmounts or the chapter changes
     return () => {
       cleanUpSpeech();
+      setSpeechState("idle");
+      currentParagraphIndexRef.current = 0;
     };
   }, [chapterText, cleanUpSpeech]);
 
   const speakParagraph = (index: number) => {
     if (index >= paragraphsRef.current.length || typeof window === "undefined" || !window.speechSynthesis) {
       cleanUpSpeech();
+      setSpeechState("idle");
+      currentParagraphIndexRef.current = 0;
       return;
     }
 
     const paragraph = paragraphsRef.current[index];
     const utterance = new SpeechSynthesisUtterance(paragraph);
     utterance.lang = "es-ES";
+    utteranceRef.current = utterance;
 
     utterance.onstart = () => setSpeechState("playing");
     utterance.onpause = () => setSpeechState("paused");
     utterance.onresume = () => setSpeechState("playing");
     utterance.onend = () => {
-      currentParagraphIndexRef.current += 1;
-      speakParagraph(currentParagraphIndexRef.current);
+      if (currentParagraphIndexRef.current < paragraphsRef.current.length - 1) {
+        currentParagraphIndexRef.current += 1;
+        speakParagraph(currentParagraphIndexRef.current);
+      } else {
+        setSpeechState("idle");
+        currentParagraphIndexRef.current = 0;
+      }
     };
     utterance.onerror = (event) => {
       console.error("SpeechSynthesis Error:", event);
@@ -62,6 +79,8 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
           variant: "destructive",
       });
       cleanUpSpeech();
+      setSpeechState("idle");
+      currentParagraphIndexRef.current = 0;
     };
     
     window.speechSynthesis.speak(utterance);
@@ -77,10 +96,7 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
         return;
     }
     
-    // Ensure everything is stopped before starting fresh
-    if (window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
+    cleanUpSpeech();
     currentParagraphIndexRef.current = 0;
     speakParagraph(0);
   };
@@ -99,6 +115,8 @@ export function ChapterAudioPlayer({ chapterText }: ChapterAudioPlayerProps) {
 
   const handleStop = () => {
     cleanUpSpeech();
+    setSpeechState("idle");
+    currentParagraphIndexRef.current = 0;
   };
 
   const handleMainButtonClick = () => {
